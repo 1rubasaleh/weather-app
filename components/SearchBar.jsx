@@ -1,6 +1,13 @@
-export default function Search() {
+import { useState } from "react";
+export default function Search({ onSearch }) {
+  const [city, setCity] = useState(""); // store input value
+  const handleSearch = () => {
+    if (city.trim() !== "") {
+      onSearch(city);
+    }
+  };
   return (
-    <div className="flex justify-center mt-4 px-4">
+    <div className="flex justify-center mt-3 px-4">
       <div className="relative w-full max-w-xl">
         {/* Search icon */}
         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -24,6 +31,9 @@ export default function Search() {
         <input
           type="text"
           placeholder="Search for a city"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           className="w-full h-11 pl-10 pr-4 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>

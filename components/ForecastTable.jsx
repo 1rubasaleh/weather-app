@@ -53,6 +53,7 @@ export default function ForecastTable({ days }) {
                 width={24}
                 height={24}
                 className="shrink-0"
+                unoptimized
               />
             </div>
           </div>

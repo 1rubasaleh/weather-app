@@ -1,13 +1,16 @@
 import Image from "next/image";
 
 function getIconSrc(condition) {
-  if (condition === "sun") return "/icons/sun.png";
-  if (condition === "clouds") return "/icons/clouds.png";
-  if (condition === "rain") return "/icons/rain.png";
-  if (condition === "storm") return "/icons/storm.png";
-  if (condition === "snow") return "/icons/snow.png";
-  if (condition === "fog") return "/icons/fog.png";
-  return "/icons/clouds.png";
+  const c = condition.toLowerCase();
+
+  if (c.includes("clear") || c.includes("sun")) return "/icons/sun.png";
+  if (c.includes("cloud")) return "/icons/PartlyCloudy.png";
+  if (c.includes("rain") || c.includes("drizzle")) return "/icons/Rainy.png";
+  if (c.includes("storm") || c.includes("thunder")) return "/icons/storm.png";
+  if (c.includes("snow")) return "/icons/snow.png";
+  if (c.includes("wind")) return "/icons/wind.png";
+
+  return "/icons/PartlyCloudy.png"; // fallback
 }
 
 export default function CurrentWeather({
