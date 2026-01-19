@@ -1,8 +1,9 @@
 export default function Footer() {
+  const year = new Date().getFullYear();
   return (
-    <footer className="border-t border-slate-800">
-      <div className="max-w-5xl mx-auto px-4 py-4 text-center text-xs text-slate-500">
-        © 2025 Weather App. All rights reserved.
+    <footer className="w-full">
+      <div className="max-w-5xl mx-auto px-3 py-3 text-center text-xs text-slate-500">
+        © {year} Weather App. All rights reserved.
       </div>
     </footer>
   );

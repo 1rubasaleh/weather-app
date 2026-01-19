@@ -2,8 +2,9 @@ import Header from "@/components/Header";
 import Search from "@/components/SearchBar";
 import CurrentWeather from "@/components/CurrentWeather";
 import WeatherStats from "@/components/WeatherStats";
-import ForecastTable from "../components/ForecastTable";
+import ForecastTable from "@/components/ForecastTable";
 import Footer from "@/components/Footer";
+
 const sampleDays = [
   {
     date: "2026-01-19",
@@ -44,21 +45,25 @@ const sampleDays = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-x-hidden bg-linear-to-b from-black to-gray-900">
+    <main className="min-h-screen overflow-x-hidden bg-gradient-to-b from-black to-gray-900 text-slate-50 flex flex-col">
       <Header />
-      <Search />
-      <CurrentWeather
-        city="Amman"
-        country="Jordan"
-        condition="sun"
-        description="Mostly clear with a high of 75°F"
-      />
-      <div className="max-w-5xl mx-auto px-4">
-        <WeatherStats humidity={60} windMph={5} feelsLikeF={72} />
+
+      <div className="flex-1 w-full">
+        <div className="max-w-5xl mx-auto w-full px-4">
+          <Search />
+
+          <CurrentWeather
+            city="Amman"
+            country="Jordan"
+            condition="sun"
+            description="Mostly clear with a high of 75°F"
+          />
+
+          <WeatherStats humidity={60} windMph={5} feelsLikeF={72} />
+          <ForecastTable days={sampleDays} />
+        </div>
       </div>
-      <div className="max-w-5xl mx-auto px-4">
-        <ForecastTable days={sampleDays} />
-      </div>
+
       <Footer />
     </main>
   );

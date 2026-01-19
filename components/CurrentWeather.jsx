@@ -19,21 +19,25 @@ export default function CurrentWeather({
   const iconSrc = getIconSrc(condition);
 
   return (
-    <section className="w-full flex justify-center mt-10 text-white">
-      <div className="flex flex-col items-center text-center max-w-xl gap-4">
-        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">
+    <section className="w-full flex justify-center mt-4 px-4 text-white overflow-x-hidden">
+      <div className="flex flex-col items-center text-center max-w-xl gap-3">
+        {/* City & Country */}
+        <h2 className="text-2xl md:text-4xl font-semibold tracking-tight break-words">
           {city}, {country}
         </h2>
 
-        <div className="flex items-center gap-3 mt-2">
+        {/* Icon + description */}
+        <div className="flex items-center gap-3">
           <Image
             src={iconSrc}
             alt="Weather condition"
-            width={51}
-            height={51}
+            width={32}
+            height={32}
             className="shrink-0"
+            priority
           />
-          <p className="text-sm md:text-base text-slate-300 leading-6">
+
+          <p className="text-sm md:text-base text-slate-300 leading-relaxed">
             {description}
           </p>
         </div>
