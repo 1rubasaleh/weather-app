@@ -13,7 +13,7 @@ function toF(c) {
 export default function ForecastTable({ days, unit }) {
   return (
     <section className="w-full max-w-5xl mx-auto px-4 overflow-x-hidden">
-      <p className="text-xs uppercase tracking-[0.2em] text-white my-4">
+      <p className="text-xs uppercase tracking-[0.2em] text-white my-3">
         5-Day Forecast
       </p>
 
@@ -29,7 +29,7 @@ export default function ForecastTable({ days, unit }) {
         {days.map((d, idx) => (
           <div
             key={d.date}
-            className={`grid grid-cols-1 md:grid-cols-4 items-center px-3 py-3.5 gap-2 md:gap-0 ${
+            className={`grid grid-cols-1 md:grid-cols-4 items-center px-3 py-3 gap-2 md:gap-0 ${
               idx !== 0 ? "border-t border-slate-800" : ""
             }`}
           >

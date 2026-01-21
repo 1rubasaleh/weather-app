@@ -238,7 +238,11 @@ export default function Home() {
 
         {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
-        {weather && !loading && <CurrentWeather {...weather} />}
+        <div
+          className={`transition-opacity duration-500 ${loading ? "opacity-50" : "opacity-100"}`}
+        >
+          {weather && <CurrentWeather {...weather} />}
+        </div>
 
         {weather && !loading && (
           <WeatherStats

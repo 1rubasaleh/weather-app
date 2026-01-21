@@ -5,7 +5,7 @@ function cToF(c) {
 
 export default function WeatherStats({ humidity, windMph, feelsLikeC, unit }) {
   return (
-    <section className="w-full max-w-5xl mx-auto px-4 mt-4">
+    <section className="w-full max-w-5xl mx-auto px-4 mt-3">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
         <StatCard
           title="Humidity"
