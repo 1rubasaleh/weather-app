@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export default function Header() {
+export default function Header({ unit, setUnit }) {
   return (
     <header className="flex justify-between items-center px-4 md:px-8 lg:px-12 py-2 border-b border-[rgba(229,232,235,0.2)] text-white overflow-x-hidden">
       {/* Left side: icon + title */}
@@ -19,7 +19,13 @@ export default function Header() {
 
       {/* Right side: °C + thermometer */}
       <div className="flex items-center gap-2">
-        <span className="text-sm font-bold">°C</span>
+        <span
+          onClick={() => setUnit(unit === "C" ? "F" : "C")}
+          className="cursor-pointer select-none text-sm font-semibold hover:text-blue-400 transition"
+          title="Click to change unit"
+        >
+          °{unit}
+        </span>
         <Image
           src="/icons/temp.png"
           alt="Thermometer icon"

@@ -6,7 +6,11 @@ function formatDayLabel(date) {
   return d.toLocaleDateString(undefined, { weekday: "long" });
 }
 
-export default function ForecastTable({ days }) {
+function toF(c) {
+  return (c * 9) / 5 + 32;
+}
+
+export default function ForecastTable({ days, unit }) {
   return (
     <section className="w-full max-w-5xl mx-auto px-4 overflow-x-hidden">
       <p className="text-xs uppercase tracking-[0.2em] text-white my-4">
@@ -25,10 +29,9 @@ export default function ForecastTable({ days }) {
         {days.map((d, idx) => (
           <div
             key={d.date}
-            className={
-              "grid grid-cols-1 md:grid-cols-4 items-center px-3 py-3.5 gap-2 md:gap-0 " +
-              (idx !== 0 ? "border-t border-slate-800" : "")
-            }
+            className={`grid grid-cols-1 md:grid-cols-4 items-center px-3 py-3.5 gap-2 md:gap-0 ${
+              idx !== 0 ? "border-t border-slate-800" : ""
+            }`}
           >
             {/* Day */}
             <div className="text-sm text-slate-300 font-medium">
@@ -37,7 +40,9 @@ export default function ForecastTable({ days }) {
 
             {/* Temp */}
             <div className="text-sm text-slate-300 md:text-center">
-              {Math.round(d.highF)}°F / {Math.round(d.lowF)}°F
+              {unit === "C"
+                ? `${Math.round(d.highC)}°C / ${Math.round(d.lowC)}°C`
+                : `${Math.round(toF(d.highC))}°F / ${Math.round(toF(d.lowC))}°F`}
             </div>
 
             {/* Condition */}
