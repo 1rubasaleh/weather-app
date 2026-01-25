@@ -140,14 +140,31 @@ export default function Home() {
       if (!forecastRes.ok) throw new Error("Forecast not available");
       const forecastData = await forecastRes.json();
 
-      const days = forecastData.list
-        .filter((item) => item.dt_txt.includes("12:00:00"))
-        .map((item) => ({
-          date: item.dt_txt,
-          highC: item.main.temp_max,
-          lowC: item.main.temp_min,
-          conditionText: item.weather[0].description,
-          iconSrc: getIconSrc(item.weather[0].description),
+      const daysMap = {};
+
+      forecastData.list.forEach((item) => {
+        const date = item.dt_txt.split(" ")[0];
+
+        if (!daysMap[date]) {
+          daysMap[date] = {
+            date,
+            temps: [],
+            conditionText: item.weather[0].description,
+            iconSrc: getIconSrc(item.weather[0].description),
+          };
+        }
+
+        daysMap[date].temps.push(item.main.temp);
+      });
+
+      const days = Object.values(daysMap)
+        .slice(0, 5)
+        .map((day) => ({
+          date: day.date,
+          highC: Math.max(...day.temps),
+          lowC: Math.min(...day.temps),
+          conditionText: day.conditionText,
+          iconSrc: day.iconSrc,
         }));
 
       setForecast(days);
@@ -201,15 +218,31 @@ export default function Home() {
         `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`,
       );
       const forecastData = await forecastRes.json();
+      const daysMap = {};
 
-      const days = forecastData.list
-        .filter((item) => item.dt_txt.includes("12:00:00"))
-        .map((item) => ({
-          date: item.dt_txt,
-          highC: item.main.temp_max,
-          lowC: item.main.temp_min,
-          conditionText: item.weather[0].description,
-          iconSrc: getIconSrc(item.weather[0].description),
+      forecastData.list.forEach((item) => {
+        const date = item.dt_txt.split(" ")[0];
+
+        if (!daysMap[date]) {
+          daysMap[date] = {
+            date,
+            temps: [],
+            conditionText: item.weather[0].description,
+            iconSrc: getIconSrc(item.weather[0].description),
+          };
+        }
+
+        daysMap[date].temps.push(item.main.temp);
+      });
+
+      const days = Object.values(daysMap)
+        .slice(0, 5)
+        .map((day) => ({
+          date: day.date,
+          highC: Math.max(...day.temps),
+          lowC: Math.min(...day.temps),
+          conditionText: day.conditionText,
+          iconSrc: day.iconSrc,
         }));
 
       setForecast(days);
