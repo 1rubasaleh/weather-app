@@ -23,7 +23,7 @@ export default function ForecastTable({ days, unit }) {
           <span>Day</span>
           <span className="text-center">High / Low</span>
           <span>Condition</span>
-          <span className="justify-self-end">Icon</span>
+          <span className="justify-self-end">&nbsp;</span>
         </div>
 
         {days.map((d, idx) => (
