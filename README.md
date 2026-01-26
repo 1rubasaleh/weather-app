@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Weather App – Internship Project
 
-## Getting Started
+## Live Demo
 
-First, run the development server:
+[Weather App Live](https://weather-app-ruby-ten-92.vercel.app/)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Tech Stack
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Frontend:** Next.js 16 + Tailwind CSS
+- **API:** OpenWeatherMap (Current weather + 5-day forecast)
+- **Hosting / Deployment:** Vercel
+- **Other Tools:** LocalStorage (recent searches), Geolocation API
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Features Implemented
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Must-Have Features
 
-## Learn More
+1. **UI from Figma**
+   - Top header with title + unit toggle (°C ↔ °F)
+   - Search bar with input + search icon
+   - Current city weather display (City, Country, Description, Icon)
+   - 3 Stat Cards: Humidity, Wind, Feels Like
+   - 5-day forecast table with weather icons
+   - Footer
 
-To learn more about Next.js, take a look at the following resources:
+2. **Responsive Design**
+   - Mobile, Tablet, Desktop layouts tested
+   - Cards stack nicely on small screens
+   - Forecast table remains readable on all breakpoints
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Weather API Integration**
+   - Fetches live data from OpenWeatherMap
+   - Handles city search input dynamically
+   - Fetches 5-day forecast
+   - Shows temperature, description, humidity, wind, feels like
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **UX States**
+   - Loading skeleton while fetching data
+   - Error messages if city not found or API fails
+   - Friendly empty state before search
 
-## Deploy on Vercel
+5. **Git & GitHub**
+   - Repository on GitHub with proper commit history
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Bonus / Extra Features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Unit toggle works (°C ↔ °F)
+- Geolocation API fetches current location weather
+- Recent searches saved in LocalStorage
+- Smooth transitions / loading skeletons
+- Accessible input (Enter key triggers search)
+
+## Environment Variables
+
+Create a `.env.local` file at the root of the project:
