@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Header({ unit, setUnit }) {
   return (
-    <header className="flex justify-between items-center px-4 md:px-8 lg:px-12 py-1 border-b border-[rgba(229,232,235,0.2)] text-white overflow-x-hidden">
+    <header className="flex justify-between items-center px-4 md:px-8 lg:px-12 py-3  border-b border-[rgba(229,232,235,0.2)] text-white overflow-x-hidden">
       {/* Left side: icon + title */}
       <div className="flex items-center gap-3">
         <Image

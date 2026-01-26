@@ -3,10 +3,11 @@ import { useState, useEffect } from "react";
 export default function Search({ onSearch }) {
   const [city, setCity] = useState("");
   const [recentSearches, setRecentSearches] = useState([]);
-
   useEffect(() => {
-    const searches = JSON.parse(localStorage.getItem("recentSearches")) || [];
-    setRecentSearches(searches);
+    setTimeout(() => {
+      const searches = JSON.parse(localStorage.getItem("recentSearches")) || [];
+      setRecentSearches(searches);
+    }, 0);
   }, []);
 
   const handleSearch = (searchCity = city) => {

@@ -1,99 +1,18 @@
-"use client";
+"use client"; //Client Component: This means it works in the browser, not on the server. We use it when using useState and useEffect.
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import Header from "@/components/Header";
 import Search from "@/components/SearchBar";
 import WeatherStats from "@/components/WeatherStats";
 import Footer from "@/components/Footer";
-
+import ForecastTable from "@/components/ForecastTable";
+import CurrentWeather from "@/components/CurrentWeather";
+import { getIconSrc } from "@/lib/weatherIcons";
 // API Key
 const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
-
-/* ------------------ ICON HELPER ------------------ */
-function getIconSrc(condition) {
-  const c = condition.toLowerCase();
-  if (c.includes("clear") || c.includes("sun")) return "/icons/sun.png";
-  if (c.includes("cloud")) return "/icons/PartlyCloudy.png";
-  if (c.includes("rain") || c.includes("drizzle")) return "/icons/Rainy.png";
-  if (c.includes("storm") || c.includes("thunder")) return "/icons/storm.png";
-  if (c.includes("snow")) return "/icons/snow.png";
-  if (c.includes("wind")) return "/icons/wind.png";
-  return "/icons/PartlyCloudy.png";
-}
-
-/* ------------------ CURRENT WEATHER ------------------ */
-function CurrentWeather({ city, country, description, iconSrc }) {
-  return (
-    <section className="w-full flex justify-center mt-4 px-4 text-white">
-      <div className="flex flex-col items-center text-center max-w-xl gap-3">
-        <h2 className="text-2xl md:text-4xl font-semibold">
-          {city}, {country}
-        </h2>
-
-        <div className="flex items-center gap-3">
-          <Image src={iconSrc} alt="Weather" width={32} height={32} />
-          <p className="text-sm md:text-base text-slate-300">{description}</p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ------------------ FORECAST TABLE ------------------ */
-function formatDayLabel(date) {
-  const d = new Date(date);
-  return d.toLocaleDateString(undefined, { weekday: "long" });
-}
-function toF(c) {
-  return (c * 9) / 5 + 32;
-}
-
-function ForecastTable({ days, unit }) {
-  return (
-    <section className="w-full max-w-5xl mx-auto px-4">
-      <p className="text-xs uppercase tracking-[0.2em] text-white my-4">
-        5-Day Forecast
-      </p>
-
-      <div className="rounded-3xl border border-slate-800 bg-slate-950/80 overflow-hidden">
-        <div className="hidden md:grid grid-cols-4 px-3 py-4 text-xs text-slate-300 bg-slate-900 border-b border-white/10">
-          <span>Day</span>
-          <span className="text-center">High / Low</span>
-          <span>Condition</span>
-          <span className="justify-self-end">Icon</span>
-        </div>
-
-        {days.map((d, idx) => (
-          <div
-            key={d.date}
-            className={`grid grid-cols-1 md:grid-cols-4 items-center px-3 py-3.5 ${
-              idx !== 0 ? "border-t border-slate-800" : ""
-            }`}
-          >
-            <div className="text-sm text-slate-300 font-medium">
-              {formatDayLabel(d.date)}
-            </div>
-
-            <div className="text-sm text-slate-300 md:text-center">
-              {unit === "C"
-                ? `${Math.round(d.highC)}°C / ${Math.round(d.lowC)}°C`
-                : `${Math.round(toF(d.highC))}°F / ${Math.round(toF(d.lowC))}°F`}
-            </div>
-
-            <div className="text-sm text-slate-400">{d.conditionText}</div>
-
-            <div className="flex justify-start md:justify-end">
-              <Image src={d.iconSrc} alt="" width={24} height={24} />
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-/* ------------------ LOADING SKELETON ------------------ */
+//Skeleton (Loading placeholder):This placeholder appears while data is being loaded.
+//animate-pulse → Animate the gray boxes to make them appear as if they are loading skeleton.
+//Its benefit: It gives the user the feeling that the page is loading, instead of being empty.
 function Skeleton() {
   return (
     <div className="animate-pulse space-y-4 mt-6">
@@ -104,7 +23,7 @@ function Skeleton() {
   );
 }
 
-/* ================== MAIN PAGE ================== */
+// MAIN PAGE
 export default function Home() {
   const [weather, setWeather] = useState(null);
   const [forecast, setForecast] = useState([]);
@@ -112,18 +31,22 @@ export default function Home() {
   const [error, setError] = useState("");
   const [unit, setUnit] = useState("C");
 
-  /* ---------- FETCH BY CITY ---------- */
+  //fetchWeather function (fetch weather by city name)
+  //We start a new load each time we search for a city.
+  //We clear any old error messages.
   const fetchWeather = async (city) => {
     setLoading(true);
     setError("");
-
     try {
       const res = await fetch(
+        //We are making an API request to fetch the current weather for the city.
         `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`,
       );
       if (!res.ok) throw new Error("City not found");
       const data = await res.json();
 
+      //We save all the important data in state weather.
+      //iconSrc → We use getIconSrc to convert text into an icon.
       setWeather({
         city: data.name,
         country: data.sys.country,
@@ -133,13 +56,15 @@ export default function Home() {
         windMph: data.wind.speed,
         feelsLikeC: data.main.feels_like,
       });
-
+      //Fetch forecast
       const forecastRes = await fetch(
         `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`,
       );
       if (!forecastRes.ok) throw new Error("Forecast not available");
       const forecastData = await forecastRes.json();
-
+      // Collect data for each day.
+      //item.dt_txt.split(" ")[0] → We take only the date, not the time.
+      //We save all temperatures and conditions for each day.
       const daysMap = {};
 
       forecastData.list.forEach((item) => {
@@ -156,7 +81,8 @@ export default function Home() {
 
         daysMap[date].temps.push(item.main.temp);
       });
-
+      //We calculate the highest and lowest temperatures for each day.
+      //We store them in the state forecast.
       const days = Object.values(daysMap)
         .slice(0, 5)
         .map((day) => ({
@@ -166,8 +92,9 @@ export default function Home() {
           conditionText: day.conditionText,
           iconSrc: day.iconSrc,
         }));
-
       setForecast(days);
+      //If an error occurs, save it to the error folder and delete any old data.
+      //Finally, stop loading.
     } catch (err) {
       setError(err.message);
       setWeather(null);
@@ -177,7 +104,10 @@ export default function Home() {
     }
   };
 
-  /* ---------- FETCH BY LOCATION ---------- */
+  //Retrieve by location (geolocation)
+  //Once the page loads, we try to get the user's location.
+  //If there's no geolocation, we display Amman as the default.
+  //`getCurrentPosition` returns `lat` and `lon`, which we then pass to the `fetchWeatherByCoords` function.
   useEffect(() => {
     if (!navigator.geolocation) {
       fetchWeather("Amman");
@@ -193,7 +123,8 @@ export default function Home() {
       },
     );
   }, []);
-
+  //The same concept as fetchWeather, but based on coordinates (lat, lon) instead of the city name.
+  //We call it if the user allows access to their location.
   const fetchWeatherByCoords = async (lat, lon) => {
     setLoading(true);
     setError("");
@@ -258,8 +189,9 @@ export default function Home() {
       <Header unit={unit} setUnit={setUnit} />
 
       <div className="flex-1 max-w-5xl mx-auto w-full px-4">
-        <Search onSearch={fetchWeather} />
-
+        {/*When the user types the name of a city, onSearch calls up fetchWeather.*/}
+        <Search onSearch={fetchWeather} />{" "}
+        {/*If it's loading → we display the message Loading + Skeleton.*/}
         {loading && (
           <div className="text-center">
             <p className="text-sm text-slate-400">
@@ -268,15 +200,22 @@ export default function Home() {
             <Skeleton />
           </div>
         )}
-
+        {/*If an error occurs → we display a message in red.*/}
         {error && <p className="text-center text-red-500 mt-4">{error}</p>}
-
         <div
           className={`transition-opacity duration-500 ${loading ? "opacity-50" : "opacity-100"}`}
         >
-          {weather && <CurrentWeather {...weather} />}
+          {/*If you return the weather data → we display CurrentWeather.
+          Here, it's important to use the weather && clause to avoid crashes. */}
+          {weather && (
+            <CurrentWeather
+              city={weather.city}
+              country={weather.country}
+              description={weather.description}
+            />
+          )}
         </div>
-
+        {/*After loading is complete and the weather data is available → we display the weather statistics.*/}
         {weather && !loading && (
           <WeatherStats
             humidity={weather.humidity}
@@ -285,7 +224,7 @@ export default function Home() {
             unit={unit}
           />
         )}
-
+        {/*If in forecast → we display the expected weather.*/}
         {forecast.length > 0 && !loading && (
           <ForecastTable days={forecast} unit={unit} />
         )}
