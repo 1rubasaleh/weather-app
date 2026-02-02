@@ -184,7 +184,7 @@ export default function Home() {
     <main className="min-h-screen flex flex-col bg-[#0F1417] text-slate-50">
       <Header unit={unit} setUnit={setUnit} />
 
-      <div className="flex-grow overflow-auto w-[90%] sm:w-full max-w-5xl px-4 sm:px-6 md:px-10 mx-auto flex flex-col">
+      <div className="flex-grow overflow-auto w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-10 flex flex-col items-center">
         <Search onSearch={fetchWeather} />
 
         {loading && (
