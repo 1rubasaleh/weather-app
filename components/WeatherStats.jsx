@@ -22,7 +22,7 @@ export default function WeatherStats({ humidity, windMph, feelsLikeC, unit }) {
           grid
           grid-cols-1
           md:grid-cols-3
-          gap-4
+          gap-3
           md:gap-4
           
         "

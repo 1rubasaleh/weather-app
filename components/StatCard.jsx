@@ -16,7 +16,7 @@ export default function StatCard({ title, value, subLabel, iconSrc }) {
         bg-[#26303B]
         p-4 sm:p-5
         flex flex-col
-        gap-4
+        gap-3
         w-full
         max-w-xs
         md:max-w-sm

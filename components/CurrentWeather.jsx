@@ -15,7 +15,7 @@ export default function CurrentWeather({
 
   return (
     <section className="w-full flex justify-center mt-4 px-4 text-white">
-      <div className="flex flex-col items-start text-left max-w-xl gap-3">
+      <div className="flex flex-col items-center text-center md:items-start md:text-left max-w-xl gap-3">
         {/* City + Country */}
         <h2
           style={{ fontFamily: "var(--font-space)" }}
@@ -25,7 +25,7 @@ export default function CurrentWeather({
         </h2>
 
         {/* Description + Icon + Temp */}
-        <div className="w-full flex items-center gap-3 pl-1">
+        <div className="w-full flex flex-col items-center gap-2 md:flex-row md:items-center md:gap-3 md:pl-1">
           {/* Weather Icon */}
           <Image
             src={iconSrc}
@@ -33,11 +33,11 @@ export default function CurrentWeather({
             width={52}
             height={52}
             priority
-            className="shrink-0 mr-4"
+            className="shrink-0 md:mr-4"
           />
 
           {/* Description + Temperature */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-center gap-1 md:flex-row md:gap-2">
             <p
               style={{ fontFamily: "var(--font-space)" }}
               className="text-sm md:text-base text-slate-300"

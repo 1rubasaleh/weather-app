@@ -2,7 +2,7 @@
 // -------------------------------
 // - Supports °C/°F conversion
 // - Responsive layout: stacked on mobile, table on larger screens
-// - Keeps header style and colors intact
+// - Table header has border + border-radius covering the table
 import Image from "next/image";
 
 function formatDayLabel(date) {
@@ -18,21 +18,22 @@ function toF(c) {
 export default function ForecastTable({ days, unit }) {
   return (
     <section className="w-full max-w-5xl mx-auto">
-      {/* Section title */}
-      <div className=" text-white my-4 pt-5 px-4 pb-3">
-        <p
-          style={{ fontFamily: "var(--font-space)" }}
-          className="w-232 h-7 font-space font-bold text-[22px] leading-7 tracking-normal opacity-100"
-        >
+      {/* Section title with border on mobile */}
+      <div
+        style={{ fontFamily: "var(--font-space)" }}
+        className=" text-white my-4 pt-5 px-4 pb-3 border-b border-gray-400 md:border-none rounded-t-xl"
+      >
+        <p className="w-232 h-7 font-space font-bold text-[22px] leading-7 tracking-normal opacity-100">
           5-Day Forecast
         </p>
       </div>
 
-      <div className="rounded-xl border border-[#384757] w-full max-w-[960px]">
+      {/* Table container with border + border-radius */}
+      <div className="border border-[#384757] rounded-xl w-full max-w-[960px] overflow-hidden">
         {/* Table Header (only for medium screens and up) */}
         <div
           style={{ fontFamily: "var(--font-space)" }}
-          className="hidden md:grid grid-cols-4 gap-8 px-3 py-4 text-xs text-slate-300 bg-[#1C2129] rounded-t-lg border-b border-gray-400 h-11.5 text-[14px]"
+          className="hidden md:grid grid-cols-4 gap-8 px-3 py-4 text-xs text-slate-300 bg-[#1C2129] rounded-t-xl border-b border-gray-400 h-11.5 text-[14px]"
         >
           <span>Day</span>
           <span className="text-center">High / Low</span>
