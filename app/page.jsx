@@ -1,6 +1,4 @@
 "use client";
-// This file is a Client Component because we use useState, useEffect,
-// browser APIs (geolocation), and fetch in the browser.
 
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
@@ -11,12 +9,8 @@ import ForecastTable from "@/components/ForecastTable";
 import CurrentWeather from "@/components/CurrentWeather";
 import { getIconSrc } from "@/lib/weatherIcons";
 
-// OpenWeather API Key (stored safely in env variables)
 const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
 
-/* ---------------- Skeleton Loader ----------------
-   Displays a loading placeholder while weather data is being fetched
---------------------------------------------------- */
 function Skeleton() {
   return (
     <div className="animate-pulse space-y-4 mt-6">
@@ -27,21 +21,18 @@ function Skeleton() {
   );
 }
 
-/* ---------------- Main Page Component ---------------- */
 export default function Home() {
-  const [weather, setWeather] = useState(null); // Current weather data
-  const [forecast, setForecast] = useState([]); // 5-day forecast
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(""); // Error message
-  const [unit, setUnit] = useState("C"); // Temperature unit
+  const [weather, setWeather] = useState(null);
+  const [forecast, setForecast] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [unit, setUnit] = useState("C");
 
-  /* ---------------- Fetch weather by city ---------------- */
   const fetchWeather = async (city) => {
     setLoading(true);
     setError("");
 
     try {
-      // Fetch current weather
       const res = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`,
       );
@@ -59,7 +50,6 @@ export default function Home() {
         feelsLikeC: data.main.feels_like,
       });
 
-      // Fetch 5-day forecast
       const forecastRes = await fetch(
         `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`,
       );
@@ -67,7 +57,6 @@ export default function Home() {
 
       const forecastData = await forecastRes.json();
 
-      // Group forecast data by day
       const daysMap = {};
       forecastData.list.forEach((item) => {
         const date = item.dt_txt.split(" ")[0];
@@ -82,7 +71,6 @@ export default function Home() {
         daysMap[date].temps.push(item.main.temp);
       });
 
-      // Calculate daily high & low
       const days = Object.values(daysMap)
         .slice(0, 5)
         .map((day) => ({
@@ -103,7 +91,6 @@ export default function Home() {
     }
   };
 
-  /* ---------------- Fetch weather by coordinates ---------------- */
   const fetchWeatherByCoords = async (lat, lon) => {
     setLoading(true);
     setError("");
@@ -161,12 +148,10 @@ export default function Home() {
     }
   };
 
-  /* ---------------- Fetch weather by IP ---------------- */
   const fetchWeatherByIP = async () => {
     try {
       const res = await fetch("https://ipapi.co/json/");
       const data = await res.json();
-
       if (data.city) {
         fetchWeather(data.city);
       } else {
@@ -177,7 +162,6 @@ export default function Home() {
     }
   };
 
-  /* ---------------- Initial load ---------------- */
   useEffect(() => {
     if (!navigator.geolocation) {
       fetchWeatherByIP();
@@ -194,19 +178,18 @@ export default function Home() {
     );
   }, []);
 
-  /* ---------------- Render ---------------- */
   return (
-    <main className="min-h-screen bg-[#0F1417] text-slate-50 flex flex-col overflow-x-hidden">
+    <main className="min-h-screen bg-[#0F1417] text-slate-50 flex flex-col">
       <Header unit={unit} setUnit={setUnit} />
 
-      {/* Container with responsive padding and max width */}
-      <div className="w-[90%] sm:w-full max-w-5xl px-4 sm:px-6 md:px-10 mx-auto">
+      {/* Container الرئيسي flex-grow ليملأ الشاشة */}
+      <div className="flex-grow w-[90%] sm:w-full max-w-5xl px-4 sm:px-6 md:px-10 mx-auto flex flex-col">
         {/* Search bar */}
         <Search onSearch={fetchWeather} />
 
-        {/* Loading state */}
+        {/* Loading */}
         {loading && (
-          <div className="text-center">
+          <div className="text-center flex flex-col items-center mt-6">
             <p className="text-sm text-slate-400 mb-4">
               Loading your location & weather...
             </p>
@@ -214,10 +197,10 @@ export default function Home() {
           </div>
         )}
 
-        {/* Error message */}
+        {/* Error */}
         {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
-        {/* Current weather */}
+        {/* Current Weather */}
         {weather && !loading && (
           <CurrentWeather
             city={weather.city}
@@ -228,7 +211,7 @@ export default function Home() {
           />
         )}
 
-        {/* Weather statistics */}
+        {/* Weather Stats */}
         {weather && !loading && (
           <WeatherStats
             humidity={weather.humidity}
@@ -238,7 +221,7 @@ export default function Home() {
           />
         )}
 
-        {/* 5-day forecast */}
+        {/* Forecast Table */}
         {forecast.length > 0 && !loading && (
           <ForecastTable days={forecast} unit={unit} />
         )}
