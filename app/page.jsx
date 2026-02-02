@@ -14,12 +14,9 @@ import { getIconSrc } from "@/lib/weatherIcons";
 // OpenWeather API Key (stored safely in env variables)
 const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
 
-/* --------------------------------------------------
-   Skeleton Loader
-   --------------------------------------------------
-   - Displays a loading placeholder while weather data is being fetched
-   - Improves UX by avoiding an empty screen
--------------------------------------------------- */
+/* ---------------- Skeleton Loader ----------------
+   Displays a loading placeholder while weather data is being fetched
+--------------------------------------------------- */
 function Skeleton() {
   return (
     <div className="animate-pulse space-y-4 mt-6">
@@ -30,9 +27,7 @@ function Skeleton() {
   );
 }
 
-/* --------------------------------------------------
-   Main Page Component
--------------------------------------------------- */
+/* ---------------- Main Page Component ---------------- */
 export default function Home() {
   const [weather, setWeather] = useState(null); // Current weather data
   const [forecast, setForecast] = useState([]); // 5-day forecast
@@ -40,10 +35,7 @@ export default function Home() {
   const [error, setError] = useState(""); // Error message
   const [unit, setUnit] = useState("C"); // Temperature unit
 
-  /* --------------------------------------------------
-     Fetch weather by city name
-     - Used when searching or when IP fallback returns a city
-  -------------------------------------------------- */
+  /* ---------------- Fetch weather by city ---------------- */
   const fetchWeather = async (city) => {
     setLoading(true);
     setError("");
@@ -77,10 +69,8 @@ export default function Home() {
 
       // Group forecast data by day
       const daysMap = {};
-
       forecastData.list.forEach((item) => {
         const date = item.dt_txt.split(" ")[0];
-
         if (!daysMap[date]) {
           daysMap[date] = {
             date,
@@ -89,11 +79,10 @@ export default function Home() {
             iconSrc: getIconSrc(item.weather[0].description),
           };
         }
-
         daysMap[date].temps.push(item.main.temp);
       });
 
-      // Calculate daily high & low temperatures
+      // Calculate daily high & low
       const days = Object.values(daysMap)
         .slice(0, 5)
         .map((day) => ({
@@ -114,10 +103,7 @@ export default function Home() {
     }
   };
 
-  /* --------------------------------------------------
-     Fetch weather by coordinates (GPS)
-     - Used when user allows geolocation access
-  -------------------------------------------------- */
+  /* ---------------- Fetch weather by coordinates ---------------- */
   const fetchWeatherByCoords = async (lat, lon) => {
     setLoading(true);
     setError("");
@@ -144,10 +130,8 @@ export default function Home() {
       const forecastData = await forecastRes.json();
 
       const daysMap = {};
-
       forecastData.list.forEach((item) => {
         const date = item.dt_txt.split(" ")[0];
-
         if (!daysMap[date]) {
           daysMap[date] = {
             date,
@@ -156,7 +140,6 @@ export default function Home() {
             iconSrc: getIconSrc(item.weather[0].description),
           };
         }
-
         daysMap[date].temps.push(item.main.temp);
       });
 
@@ -178,13 +161,7 @@ export default function Home() {
     }
   };
 
-  /* --------------------------------------------------
-     Fetch weather by IP address
-     - Used when:
-       1) User rejects geolocation
-       2) Browser doesn't support geolocation
-     - If VPN is enabled → returns VPN location
-  -------------------------------------------------- */
+  /* ---------------- Fetch weather by IP ---------------- */
   const fetchWeatherByIP = async () => {
     try {
       const res = await fetch("https://ipapi.co/json/");
@@ -200,13 +177,7 @@ export default function Home() {
     }
   };
 
-  /* --------------------------------------------------
-     Initial location detection (on page load)
-     Priority order:
-     1) GPS location (if allowed)
-     2) IP-based location (VPN-aware)
-     3) Default city (Amman)
-  -------------------------------------------------- */
+  /* ---------------- Initial load ---------------- */
   useEffect(() => {
     if (!navigator.geolocation) {
       fetchWeatherByIP();
@@ -223,21 +194,20 @@ export default function Home() {
     );
   }, []);
 
-  /* --------------------------------------------------
-     UI
-  -------------------------------------------------- */
+  /* ---------------- Render ---------------- */
   return (
-    <main className="min-h-screen bg-[#0F1417] text-slate-50 flex flex-col">
+    <main className="min-h-screen bg-[#0F1417] text-slate-50 flex flex-col overflow-x-hidden">
       <Header unit={unit} setUnit={setUnit} />
 
-      <div className="w-324.5 h-231.75 pt-5 pr-40 pb-5 pl-40 mx-auto">
+      {/* Container with responsive padding and max width */}
+      <div className="w-full max-w-5xl px-4 sm:px-6 md:px-10 mx-auto">
         {/* Search bar */}
         <Search onSearch={fetchWeather} />
 
         {/* Loading state */}
         {loading && (
           <div className="text-center">
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-400 mb-4">
               Loading your location & weather...
             </p>
             <Skeleton />

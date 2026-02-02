@@ -40,7 +40,6 @@ export default function Header({ unit, setUnit }) {
             font-bold
             whitespace-nowrap
             h-[23px]
-            w-[112px]
           "
         >
           Weather App
