@@ -24,7 +24,7 @@ export default function CurrentWeather({
           {city}, {country}
         </h2>
 
-        {/* Description + Icon + Temp */}
+        {/* Icon + Description + Temp */}
         <div className="w-full flex flex-col items-center gap-2 md:flex-row md:items-center md:gap-3 md:pl-1">
           {/* Weather Icon */}
           <Image
@@ -36,8 +36,8 @@ export default function CurrentWeather({
             className="shrink-0 md:mr-4"
           />
 
-          {/* Description + Temperature */}
-          <div className="flex flex-col items-center gap-1 md:flex-row md:gap-2">
+          {/* Description + Temperature (same line) */}
+          <div className="flex items-center gap-2">
             <p
               style={{ fontFamily: "var(--font-space)" }}
               className="text-sm md:text-base text-slate-300"
