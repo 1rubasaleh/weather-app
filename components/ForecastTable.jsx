@@ -18,10 +18,10 @@ function toF(c) {
 export default function ForecastTable({ days, unit }) {
   return (
     <section className="w-full max-w-5xl mx-auto">
-      {/* Section title with border on mobile */}
+      {/* Section title */}
       <div
         style={{ fontFamily: "var(--font-space)" }}
-        className=" text-white my-4 pt-5 px-4 pb-3 border-b border-gray-400 md:border-none rounded-t-xl"
+        className="text-white my-4 pt-5 px-4 pb-3 rounded-t-xl"
       >
         <p className="w-232 h-7 font-space font-bold text-[22px] leading-7 tracking-normal opacity-100">
           5-Day Forecast
