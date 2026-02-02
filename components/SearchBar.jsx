@@ -55,10 +55,10 @@ export default function Search({ onSearch }) {
   };
 
   return (
-    <div className="w-full max-w-[960px] mx-auto mt-4 relative">
+    <div className="w-full max-w-5xl mx-auto mt-4 relative">
       {/* Input wrapper */}
       <div className="relative w-full">
-        {/* Icon */}
+        {/* Search icon */}
         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
           <svg
             xmlns="http://www.w3.org/2000/svg"
