@@ -11,6 +11,7 @@ import { getIconSrc } from "@/lib/weatherIcons";
 
 const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
 
+/* ---------------- Skeleton Loader ---------------- */
 function Skeleton() {
   return (
     <div className="animate-pulse space-y-4 mt-6">
@@ -28,6 +29,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [unit, setUnit] = useState("C");
 
+  /* ---------------- Fetch weather by city ---------------- */
   const fetchWeather = async (city) => {
     setLoading(true);
     setError("");
@@ -91,6 +93,7 @@ export default function Home() {
     }
   };
 
+  /* ---------------- Fetch weather by coordinates ---------------- */
   const fetchWeatherByCoords = async (lat, lon) => {
     setLoading(true);
     setError("");
@@ -148,6 +151,7 @@ export default function Home() {
     }
   };
 
+  /* ---------------- Fetch weather by IP ---------------- */
   const fetchWeatherByIP = async () => {
     try {
       const res = await fetch("https://ipapi.co/json/");
@@ -162,6 +166,7 @@ export default function Home() {
     }
   };
 
+  /* ---------------- Initial load ---------------- */
   useEffect(() => {
     if (!navigator.geolocation) {
       fetchWeatherByIP();
@@ -169,25 +174,20 @@ export default function Home() {
     }
 
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude);
-      },
-      () => {
-        fetchWeatherByIP();
-      },
+      (pos) => fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude),
+      () => fetchWeatherByIP(),
     );
   }, []);
 
+  /* ---------------- Render ---------------- */
   return (
-    <main className="min-h-screen bg-[#0F1417] text-slate-50 flex flex-col">
+    <main className="min-h-screen flex flex-col bg-[#0F1417] text-slate-50">
       <Header unit={unit} setUnit={setUnit} />
 
-      {/* Container الرئيسي flex-grow ليملأ الشاشة */}
-      <div className="flex-grow w-[90%] sm:w-full max-w-5xl px-4 sm:px-6 md:px-10 mx-auto flex flex-col">
-        {/* Search bar */}
+      {/* Container الرئيسي - flex-grow + scrollable */}
+      <div className="flex-grow overflow-auto w-[90%] sm:w-full max-w-5xl px-4 sm:px-6 md:px-10 mx-auto flex flex-col">
         <Search onSearch={fetchWeather} />
 
-        {/* Loading */}
         {loading && (
           <div className="text-center flex flex-col items-center mt-6">
             <p className="text-sm text-slate-400 mb-4">
@@ -197,10 +197,8 @@ export default function Home() {
           </div>
         )}
 
-        {/* Error */}
         {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
-        {/* Current Weather */}
         {weather && !loading && (
           <CurrentWeather
             city={weather.city}
@@ -211,7 +209,6 @@ export default function Home() {
           />
         )}
 
-        {/* Weather Stats */}
         {weather && !loading && (
           <WeatherStats
             humidity={weather.humidity}
@@ -221,7 +218,6 @@ export default function Home() {
           />
         )}
 
-        {/* Forecast Table */}
         {forecast.length > 0 && !loading && (
           <ForecastTable days={forecast} unit={unit} />
         )}
