@@ -24,7 +24,7 @@ export default function CurrentWeather({
           {city}, {country}
         </h2>
 
-        {/* Icon + Description + Temp (same line) */}
+        {/* Icon + Description + Temp */}
         <div className="flex items-center justify-center gap-3 md:justify-start">
           {/* Weather Icon */}
           <Image
@@ -33,7 +33,7 @@ export default function CurrentWeather({
             width={52}
             height={52}
             priority
-            className="shrink-0"
+            className="shrink-0 w-8 h-8 md:w-12 md:h-12"
           />
 
           {/* Description */}
