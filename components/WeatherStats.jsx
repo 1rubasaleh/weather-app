@@ -1,66 +1,60 @@
-import Image from "next/image";
+// WeatherStats shows weather statistics in responsive cards
+// It adapts automatically to mobile, tablet, and desktop screens
 
-/* ------------------ StatCard ------------------ */
-export function StatCard({ title, value, subLabel, iconSrc }) {
-  return (
-    <div
-      className="
-        rounded-2xl
-        border border-[#26303B]
-        bg-[#26303B]
-        p-4 sm:p-5
-        flex flex-col
-        gap-4
-        w-full
-        max-w-xs
-        md:max-w-sm
-        h-auto
-        mx-auto
-      "
-    >
-      {/* Title */}
-      <span className="font-space text-xs text-slate-400">{title}</span>
+import StatCard from "./StatCard";
 
-      {/* Value */}
-      <span className="font-space font-semibold text-lg sm:text-xl md:text-2xl text-white break-words">
-        {value}
-      </span>
-
-      {/* Icon + SubLabel */}
-      <div className="mt-1 flex items-center gap-2 text-[11px] sm:text-xs text-slate-400">
-        <Image
-          src={iconSrc}
-          alt={subLabel}
-          width={20}
-          height={20}
-          className="shrink-0"
-        />
-        <span className="font-space">{subLabel}</span>
-      </div>
-    </div>
-  );
+// Convert Celsius to Fahrenheit
+function cToF(c) {
+  return (c * 9) / 5 + 32;
 }
 
-/* ------------------ StatsContainer ------------------ */
-export default function StatsContainer({ stats }) {
+export default function WeatherStats({ humidity, windMph, feelsLikeC, unit }) {
   return (
-    <div
-      className="
-        flex flex-col items-center justify-center
-        gap-4
-        w-full
-        sm:flex-row sm:flex-wrap sm:justify-center
-      "
-    >
-      {stats.map((stat, index) => (
+    <section className="w-full max-w-5xl mx-auto px-0 mt-4">
+      {/* 
+        Responsive grid:
+        - 1 column on mobile
+        - 3 columns on tablet & desktop
+      */}
+      <div
+        style={{ fontFamily: "var(--font-space)" }}
+        className="
+          grid
+          grid-cols-1
+          md:grid-cols-3
+          gap-4
+          md:gap-4
+          
+        "
+      >
+        {/* Humidity */}
         <StatCard
-          key={index}
-          title={stat.title}
-          value={stat.value}
-          subLabel={stat.subLabel}
-          iconSrc={stat.iconSrc}
+          title="Humidity"
+          value={`${humidity}%`}
+          subLabel="Cloud"
+          iconSrc="/icons/PartlyCloudy.png"
         />
-      ))}
-    </div>
+
+        {/* Wind */}
+        <StatCard
+          title="Wind"
+          value={`${windMph} mph`}
+          subLabel="Wind"
+          iconSrc="/icons/wind.png"
+        />
+
+        {/* Feels Like */}
+        <StatCard
+          title="Feels Like"
+          value={
+            unit === "C"
+              ? `${Math.round(feelsLikeC)}°C`
+              : `${Math.round(cToF(feelsLikeC))}°F`
+          }
+          subLabel="Thermometer"
+          iconSrc="/icons/temp.png"
+        />
+      </div>
+    </section>
   );
 }

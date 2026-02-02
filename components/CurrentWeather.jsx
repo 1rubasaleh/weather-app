@@ -33,7 +33,7 @@ export default function CurrentWeather({
             width={52}
             height={52}
             priority
-            className="shrink-0 "
+            className="shrink-0 mr-4"
           />
 
           {/* Description + Temperature */}

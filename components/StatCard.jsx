@@ -7,7 +7,7 @@ import Image from "next/image";
   - Shows title, value, icon, and sub-label
   - Fully responsive: adjusts width, padding, and font sizes
 */
-export function StatCard({ title, value, subLabel, iconSrc }) {
+export default function StatCard({ title, value, subLabel, iconSrc }) {
   return (
     <div
       className="
@@ -36,41 +36,12 @@ export function StatCard({ title, value, subLabel, iconSrc }) {
         <Image
           src={iconSrc}
           alt={subLabel}
-          width={20}
+          width={20} // slightly larger on all screens
           height={20}
           className="shrink-0"
         />
         <span className="font-space">{subLabel}</span>
       </div>
-    </div>
-  );
-}
-
-/*
-  StatsContainer Component
-  -----------------------
-  - Wraps multiple StatCards
-  - Centers them on mobile (column)
-  - Arranges in row with wrapping on larger screens
-*/
-export default function StatsContainer({ stats }) {
-  return (
-    <div
-      className="
-        flex flex-col items-center justify-center
-        gap-4
-        sm:flex-row sm:flex-wrap sm:justify-center
-      "
-    >
-      {stats.map((stat, index) => (
-        <StatCard
-          key={index}
-          title={stat.title}
-          value={stat.value}
-          subLabel={stat.subLabel}
-          iconSrc={stat.iconSrc}
-        />
-      ))}
     </div>
   );
 }
