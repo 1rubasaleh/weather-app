@@ -1,5 +1,3 @@
-// The Search component manages user input, calls search from the parent,
-// and fetches city suggestions from OpenWeather Geocoding API
 "use client";
 
 import { useState, useEffect } from "react";
@@ -11,9 +9,6 @@ export default function Search({ onSearch }) {
   const [recentSearches, setRecentSearches] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
 
-  /* --------------------------------------------------
-     Handle input change & fetch suggestions
-  -------------------------------------------------- */
   const handleChange = async (e) => {
     const value = e.target.value;
     setCity(value);
@@ -30,7 +25,6 @@ export default function Search({ onSearch }) {
       const data = await res.json();
 
       const formatted = data.map((item) => `${item.name}, ${item.country}`);
-
       setSuggestions(formatted);
     } catch (err) {
       console.error("Failed to fetch city suggestions:", err);
@@ -38,28 +32,20 @@ export default function Search({ onSearch }) {
     }
   };
 
-  /* --------------------------------------------------
-     Load recent searches from localStorage
-  -------------------------------------------------- */
   useEffect(() => {
     const searches = JSON.parse(localStorage.getItem("recentSearches")) || [];
     setRecentSearches(searches);
   }, []);
 
-  /* --------------------------------------------------
-     Execute search & save to recent searches
-  -------------------------------------------------- */
   const handleSearch = (searchCity = city) => {
     if (!searchCity.trim()) return;
 
     onSearch(searchCity);
 
     let searches = JSON.parse(localStorage.getItem("recentSearches")) || [];
-
     if (!searches.includes(searchCity)) {
       searches.unshift(searchCity);
     }
-
     searches = searches.slice(0, 5);
     localStorage.setItem("recentSearches", JSON.stringify(searches));
 
@@ -69,10 +55,10 @@ export default function Search({ onSearch }) {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto mt-4 px-4 sm:px-0 relative">
+    <div className="w-full max-w-[960px] mx-auto mt-4 relative">
       {/* Input wrapper */}
       <div className="relative w-full">
-        {/* Search icon */}
+        {/* Icon */}
         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -91,57 +77,40 @@ export default function Search({ onSearch }) {
         </div>
 
         {/* Input */}
-  <input
-  style={{ fontFamily: "var(--font-space)" }}
-  type="text"
-  placeholder="Search for a city"
-  value={city}
-  onChange={handleChange}
-  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-  className="
-    w-full
-    h-11 sm:h-12
-    rounded-xl
-    pl-10
-    pr-4
-    bg-[#26303B]
-    border border-gray-700
-    text-[16px] sm:text-base
-    text-white
-    placeholder-gray-400
-    focus:outline-none
-    focus:ring-2
-    focus:ring-blue-500
-  "
-/>
-
+        <input
+          style={{ fontFamily: "var(--font-space)" }}
+          type="text"
+          placeholder="Search for a city"
+          value={city}
+          onChange={handleChange}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          className="
+            w-full
+            h-11 sm:h-12
+            rounded-xl
+            pl-10
+            pr-4
+            bg-[#26303B]
+            border border-gray-700
+            text-[16px] sm:text-base
+            text-white
+            placeholder-gray-400
+            focus:outline-none
+            focus:ring-2
+            focus:ring-blue-500
+            [-webkit-text-size-adjust:100%]
+          "
+        />
+      </div>
 
       {/* Suggestions dropdown */}
       {suggestions.length > 0 && (
-        <div
-          className="
-            absolute
-            z-50
-            mt-1
-            w-full
-            bg-[#26303B]
-            border border-gray-700
-            rounded-xl
-            overflow-hidden
-          "
-        >
+        <div className="absolute z-50 mt-1 left-0 w-full bg-[#26303B] border border-gray-700 rounded-xl overflow-hidden box-border">
           {suggestions.map((s) => (
             <div
               key={s}
               onClick={() => handleSearch(s)}
-              className="
-                px-4
-                py-2
-                text-sm sm:text-base
-                cursor-pointer
-                text-white
-                hover:bg-[#2F3A46]
-              "
+              className="px-4 py-2 text-[16px] sm:text-base cursor-pointer text-white hover:bg-[#2F3A46]"
             >
               {s}
             </div>
@@ -156,15 +125,7 @@ export default function Search({ onSearch }) {
             <button
               key={c}
               onClick={() => handleSearch(c)}
-              className="
-                px-3
-                py-1
-                text-xs sm:text-sm
-                rounded-lg
-                bg-[#26303B]
-                text-white
-                hover:bg-[#2F3A46]
-              "
+              className="px-3 py-1 text-[16px] sm:text-sm rounded-lg bg-[#26303B] text-white hover:bg-[#2F3A46]"
             >
               {c}
             </button>

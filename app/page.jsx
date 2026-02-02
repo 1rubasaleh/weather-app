@@ -200,7 +200,7 @@ export default function Home() {
       <Header unit={unit} setUnit={setUnit} />
 
       {/* Container with responsive padding and max width */}
-      <div className="w-full max-w-5xl px-4 sm:px-6 md:px-10 mx-auto">
+      <div className="w-[90%] sm:w-full max-w-5xl px-4 sm:px-6 md:px-10 mx-auto">
         {/* Search bar */}
         <Search onSearch={fetchWeather} />
 
