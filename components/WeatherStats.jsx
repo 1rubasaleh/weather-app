@@ -19,13 +19,14 @@ export default function WeatherStats({ humidity, windMph, feelsLikeC, unit }) {
       <div
         style={{ fontFamily: "var(--font-space)" }}
         className="
-          grid
-          grid-cols-1
-          md:grid-cols-3
-          gap-3
-          md:gap-4
-          
-        "
+    grid
+    grid-cols-1
+    place-items-center
+    md:grid-cols-3
+    md:place-items-stretch
+    gap-3
+    md:gap-4
+  "
       >
         {/* Humidity */}
         <StatCard
