@@ -12,6 +12,7 @@ export default function CurrentWeather({
   unit,
 }) {
   const iconSrc = getIconSrc(description);
+  const displayTemp = unit === "C" ? temp : (temp * 9) / 5 + 32;
 
   return (
     <section className="w-full flex justify-center mt-4 px-4 text-white">
@@ -49,7 +50,7 @@ export default function CurrentWeather({
             style={{ fontFamily: "var(--font-space)" }}
             className="text-sm md:text-base text-slate-300"
           >
-            {Math.round(temp)}°{unit}
+            {Math.round(displayTemp)}°{unit}
           </span>
         </div>
       </div>
