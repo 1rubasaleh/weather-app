@@ -1,6 +1,4 @@
 "use client";
-// This file is a Client Component because we use useState, useEffect,
-// browser APIs (geolocation), and fetch in the browser.
 
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
@@ -11,42 +9,36 @@ import ForecastTable from "@/components/ForecastTable";
 import CurrentWeather from "@/components/CurrentWeather";
 import { getIconSrc } from "@/lib/weatherIcons";
 
-// OpenWeather API Key (stored safely in env variables)
 const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
 
-/* ---------------- Skeleton Loader ----------------
-   Displays a loading placeholder while weather data is being fetched
---------------------------------------------------- */
+/* ---------------- Skeleton Loader ---------------- */
 function Skeleton() {
   return (
-    <div className="animate-pulse space-y-4 mt-6">
-      <div className="h-8 bg-gray-700 rounded w-1/3 mx-auto" />
-      <div className="h-32 bg-gray-700 rounded mx-auto max-w-xl" />
-      <div className="h-20 bg-gray-700 rounded mx-auto max-w-5xl" />
+    <div className="animate-pulse space-y-4 mt-6 flex flex-col items-center">
+      <div className="h-8 bg-gray-700 rounded w-1/3" />
+      <div className="h-32 bg-gray-700 rounded max-w-xl w-full" />
+      <div className="h-20 bg-gray-700 rounded max-w-5xl w-full" />
     </div>
   );
 }
 
 /* ---------------- Main Page Component ---------------- */
 export default function Home() {
-  const [weather, setWeather] = useState(null); // Current weather data
-  const [forecast, setForecast] = useState([]); // 5-day forecast
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(""); // Error message
-  const [unit, setUnit] = useState("C"); // Temperature unit
+  const [weather, setWeather] = useState(null);
+  const [forecast, setForecast] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [unit, setUnit] = useState("C");
 
-  /* ---------------- Fetch weather by city ---------------- */
   const fetchWeather = async (city) => {
     setLoading(true);
     setError("");
 
     try {
-      // Fetch current weather
       const res = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`,
       );
       if (!res.ok) throw new Error("City not found");
-
       const data = await res.json();
 
       setWeather({
@@ -59,15 +51,12 @@ export default function Home() {
         feelsLikeC: data.main.feels_like,
       });
 
-      // Fetch 5-day forecast
       const forecastRes = await fetch(
         `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`,
       );
       if (!forecastRes.ok) throw new Error("Forecast not available");
-
       const forecastData = await forecastRes.json();
 
-      // Group forecast data by day
       const daysMap = {};
       forecastData.list.forEach((item) => {
         const date = item.dt_txt.split(" ")[0];
@@ -82,7 +71,6 @@ export default function Home() {
         daysMap[date].temps.push(item.main.temp);
       });
 
-      // Calculate daily high & low
       const days = Object.values(daysMap)
         .slice(0, 5)
         .map((day) => ({
@@ -103,7 +91,6 @@ export default function Home() {
     }
   };
 
-  /* ---------------- Fetch weather by coordinates ---------------- */
   const fetchWeatherByCoords = async (lat, lon) => {
     setLoading(true);
     setError("");
@@ -161,52 +148,37 @@ export default function Home() {
     }
   };
 
-  /* ---------------- Fetch weather by IP ---------------- */
   const fetchWeatherByIP = async () => {
     try {
       const res = await fetch("https://ipapi.co/json/");
       const data = await res.json();
-
-      if (data.city) {
-        fetchWeather(data.city);
-      } else {
-        fetchWeather("Amman");
-      }
+      if (data.city) fetchWeather(data.city);
+      else fetchWeather("Amman");
     } catch {
       fetchWeather("Amman");
     }
   };
 
-  /* ---------------- Initial load ---------------- */
   useEffect(() => {
     if (!navigator.geolocation) {
       fetchWeatherByIP();
       return;
     }
-
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude);
-      },
-      () => {
-        fetchWeatherByIP();
-      },
+      (pos) => fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude),
+      () => fetchWeatherByIP(),
     );
   }, []);
 
-  /* ---------------- Render ---------------- */
   return (
-    <main className="min-h-screen bg-[#0F1417] text-slate-50 flex flex-col overflow-x-hidden">
+    <main className="min-h-screen w-full bg-[#0F1417] text-slate-50 flex flex-col overflow-x-hidden">
       <Header unit={unit} setUnit={setUnit} />
 
-      {/* Container with responsive padding and max width */}
-      <div className="w-full max-w-5xl px-4 sm:px-6 md:px-10 mx-auto">
-        {/* Search bar */}
+      <div className="w-full flex flex-col items-center px-4 sm:px-6 md:px-10">
         <Search onSearch={fetchWeather} />
 
-        {/* Loading state */}
         {loading && (
-          <div className="text-center">
+          <div className="text-center w-full flex flex-col items-center">
             <p className="text-sm text-slate-400 mb-4">
               Loading your location & weather...
             </p>
@@ -214,33 +186,29 @@ export default function Home() {
           </div>
         )}
 
-        {/* Error message */}
         {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
-        {/* Current weather */}
         {weather && !loading && (
-          <CurrentWeather
-            city={weather.city}
-            country={weather.country}
-            description={weather.description}
-            temp={weather.feelsLikeC}
-            unit={unit}
-          />
-        )}
+          <div className="flex flex-col items-center w-full">
+            <CurrentWeather
+              city={weather.city}
+              country={weather.country}
+              description={weather.description}
+              temp={weather.feelsLikeC}
+              unit={unit}
+            />
 
-        {/* Weather statistics */}
-        {weather && !loading && (
-          <WeatherStats
-            humidity={weather.humidity}
-            windMph={weather.windMph}
-            feelsLikeC={weather.feelsLikeC}
-            unit={unit}
-          />
-        )}
+            <WeatherStats
+              humidity={weather.humidity}
+              windMph={weather.windMph}
+              feelsLikeC={weather.feelsLikeC}
+              unit={unit}
+            />
 
-        {/* 5-day forecast */}
-        {forecast.length > 0 && !loading && (
-          <ForecastTable days={forecast} unit={unit} />
+            {forecast.length > 0 && (
+              <ForecastTable days={forecast} unit={unit} />
+            )}
+          </div>
         )}
       </div>
 
