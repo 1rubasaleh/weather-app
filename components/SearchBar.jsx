@@ -91,30 +91,30 @@ export default function Search({ onSearch }) {
         </div>
 
         {/* Input */}
-        <input
-          style={{ fontFamily: "var(--font-space)" }}
-          type="text"
-          placeholder="Search for a city"
-          value={city}
-          onChange={handleChange}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          className="
-            w-full
-            h-11 sm:h-12
-            rounded-xl
-            pl-10
-            pr-4
-            bg-[#26303B]
-            border border-gray-700
-            text-sm sm:text-base
-            text-white
-            placeholder-gray-400
-            focus:outline-none
-            focus:ring-2
-            focus:ring-blue-500
-          "
-        />
-      </div>
+  <input
+  style={{ fontFamily: "var(--font-space)" }}
+  type="text"
+  placeholder="Search for a city"
+  value={city}
+  onChange={handleChange}
+  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+  className="
+    w-full
+    h-11 sm:h-12
+    rounded-xl
+    pl-10
+    pr-4
+    bg-[#26303B]
+    border border-gray-700
+    text-[16px] sm:text-base
+    text-white
+    placeholder-gray-400
+    focus:outline-none
+    focus:ring-2
+    focus:ring-blue-500
+  "
+/>
+
 
       {/* Suggestions dropdown */}
       {suggestions.length > 0 && (
