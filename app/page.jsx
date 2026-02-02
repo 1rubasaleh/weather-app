@@ -23,9 +23,9 @@ const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
 function Skeleton() {
   return (
     <div className="animate-pulse space-y-4 mt-6">
-      <div className="h-8 bg-gray-700 rounded w-1/3 mx-auto" />
-      <div className="h-32 bg-gray-700 rounded mx-auto max-w-xl" />
-      <div className="h-20 bg-gray-700 rounded mx-auto max-w-5xl" />
+      <div className="h-8 bg-gray-700 rounded w-2/5 mx-auto" />
+      <div className="h-32 bg-gray-700 rounded mx-auto max-w-lg" />
+      <div className="h-20 bg-gray-700 rounded mx-auto max-w-4xl" />
     </div>
   );
 }
@@ -54,7 +54,6 @@ export default function Home() {
         `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`,
       );
       if (!res.ok) throw new Error("City not found");
-
       const data = await res.json();
 
       setWeather({
@@ -72,15 +71,12 @@ export default function Home() {
         `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`,
       );
       if (!forecastRes.ok) throw new Error("Forecast not available");
-
       const forecastData = await forecastRes.json();
 
       // Group forecast data by day
       const daysMap = {};
-
       forecastData.list.forEach((item) => {
         const date = item.dt_txt.split(" ")[0];
-
         if (!daysMap[date]) {
           daysMap[date] = {
             date,
@@ -89,7 +85,6 @@ export default function Home() {
             iconSrc: getIconSrc(item.weather[0].description),
           };
         }
-
         daysMap[date].temps.push(item.main.temp);
       });
 
@@ -144,10 +139,8 @@ export default function Home() {
       const forecastData = await forecastRes.json();
 
       const daysMap = {};
-
       forecastData.list.forEach((item) => {
         const date = item.dt_txt.split(" ")[0];
-
         if (!daysMap[date]) {
           daysMap[date] = {
             date,
@@ -156,7 +149,6 @@ export default function Home() {
             iconSrc: getIconSrc(item.weather[0].description),
           };
         }
-
         daysMap[date].temps.push(item.main.temp);
       });
 
@@ -189,12 +181,8 @@ export default function Home() {
     try {
       const res = await fetch("https://ipapi.co/json/");
       const data = await res.json();
-
-      if (data.city) {
-        fetchWeather(data.city);
-      } else {
-        fetchWeather("Amman");
-      }
+      if (data.city) fetchWeather(data.city);
+      else fetchWeather("Amman");
     } catch {
       fetchWeather("Amman");
     }
@@ -208,7 +196,7 @@ export default function Home() {
      3) Default city (Amman)
   -------------------------------------------------- */
   useEffect(() => {
-    // Always ask for location on page load (for testing)
+    // Always request location on page load
     if (!navigator.geolocation) {
       fetchWeatherByIP();
       return;
@@ -226,20 +214,21 @@ export default function Home() {
   }, []);
 
   /* --------------------------------------------------
-     UI
+     UI (Fully Responsive)
   -------------------------------------------------- */
   return (
     <main className="min-h-screen bg-[#0F1417] text-slate-50 flex flex-col">
       <Header unit={unit} setUnit={setUnit} />
 
-      <div className="w-324.5 h-231.75 pt-5 pr-40 pb-5 pl-40 mx-auto">
+      {/* Container responsive: mobile → tablet → desktop */}
+      <div className="w-full max-w-5xl mx-auto p-4 sm:p-6 md:p-8 lg:p-10 flex flex-col gap-6">
         {/* Search bar */}
         <Search onSearch={fetchWeather} />
 
         {/* Loading state */}
         {loading && (
           <div className="text-center">
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-400 mb-4">
               Loading your location & weather...
             </p>
             <Skeleton />
