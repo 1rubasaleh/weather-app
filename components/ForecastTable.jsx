@@ -1,3 +1,5 @@
+//ForecastTable displays 5-day forecast, supports °C/°F conversion,
+// and uses a responsive layout with a table header on large screens.
 import Image from "next/image";
 function formatDayLabel(date) {
   const d = new Date(date);
@@ -12,38 +14,73 @@ function toF(c) {
 export default function ForecastTable({ days, unit }) {
   return (
     <section className="w-full max-w-5xl mx-auto ">
-      <p className="text-xs uppercase tracking-[0.2em] text-white  my-4 pt-5 p-4 pb-3">
-        5-Day Forecast
-      </p>
+      <div className="uppercase  text-white  my-4 pt-5 p-4 pb-3">
+        <p
+          style={{ fontFamily: "var(--font-space)" }}
+          className="   w-232
+    h-7
+    font-space
+    font-bold
+    text-[22px]
+    leading-7
+    tracking-normal
+    opacity-100"
+        >
+          5-Day Forecast
+        </p>
+      </div>
 
-      <div className="rounded-3xl border border-slate-800 bg-slate-950/80 overflow-hidden">
-        <div className="hidden md:grid grid-cols-4 px-3 py-4 text-xs text-slate-300 bg-slate-900 border-b border-gray-400">
+      <div className="rounded-xl border border-[#384757] w-full max-w-[960px]">
+        {/* Table Header */}
+        <div
+          style={{ fontFamily: "var(--font-space)" }}
+          className="hidden md:grid grid-cols-4 gap-8 px-3 py-4 text-xs text-slate-300 bg-[#1C2129] rounded-t-lg border-b border-gray-400 h-11.5 text-[14px]"
+        >
           <span>Day</span>
           <span className="text-center">High / Low</span>
-          <span>Condition</span>
+          <span className="text-center">Condition</span>
           <span className="justify-self-end"></span>
         </div>
 
+        {/* Table Rows */}
         {days.map((d, idx) => (
           <div
             key={d.date}
-            className={`grid grid-cols-1 md:grid-cols-4 items-center px-3 py-3.5 ${
+            className={`grid grid-cols-1 md:grid-cols-4 md:gap-8 items-center px-3 py-3.5 h-[72px] ${
               idx !== 0 ? "border-t border-gray-400" : ""
             }`}
           >
-            <div className="text-sm text-slate-300 font-medium">
+            {/* Day */}
+            <div
+              style={{ fontFamily: "var(--font-space)" }}
+              className="text-sm text-slate-300 font-medium flex items-center"
+            >
               {formatDayLabel(d.date)}
             </div>
 
-            <div className="text-sm text-slate-300 md:text-center">
+            {/* High / Low */}
+            <div
+              style={{ fontFamily: "var(--font-space)" }}
+              className="text-sm text-slate-300 flex items-center justify-center"
+            >
               {unit === "C"
                 ? `${Math.round(d.highC)}°C / ${Math.round(d.lowC)}°C`
                 : `${Math.round(toF(d.highC))}°F / ${Math.round(toF(d.lowC))}°F`}
             </div>
 
-            <div className="text-sm text-slate-400">{d.conditionText}</div>
+            {/* Condition */}
+            <div
+              style={{ fontFamily: "var(--font-space)" }}
+              className="text-sm text-slate-400 flex items-center justify-center"
+            >
+              {d.conditionText}
+            </div>
 
-            <div className="flex justify-start md:justify-end ">
+            {/* Icon */}
+            <div
+              style={{ fontFamily: "var(--font-space)" }}
+              className="flex justify-end items-center"
+            >
               <Image src={d.iconSrc} alt="" width={24} height={24} />
             </div>
           </div>

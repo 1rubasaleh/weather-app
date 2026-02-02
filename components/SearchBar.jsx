@@ -1,38 +1,72 @@
+//The Search component manages user input, calls search from the parent,
+//and fetches city suggestions from OpenWeather Geocoding API
+"use client";
+
 import { useState, useEffect } from "react";
+
+const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
 
 export default function Search({ onSearch }) {
   const [city, setCity] = useState("");
   const [recentSearches, setRecentSearches] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+
+  const handleChange = async (e) => {
+    const value = e.target.value;
+    setCity(value);
+
+    if (value.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `https://api.openweathermap.org/geo/1.0/direct?q=${value}&limit=5&appid=${API_KEY}`,
+      );
+      const data = await res.json();
+
+      const formatted = data.map((item) => `${item.name}, ${item.country}`);
+
+      setSuggestions(formatted);
+    } catch (err) {
+      console.error("Failed to fetch city suggestions:", err);
+      setSuggestions([]);
+    }
+  };
+
   useEffect(() => {
-    setTimeout(() => {
-      const searches = JSON.parse(localStorage.getItem("recentSearches")) || [];
-      setRecentSearches(searches);
-    }, 0);
+    const searches = JSON.parse(localStorage.getItem("recentSearches")) || [];
+    setRecentSearches(searches);
   }, []);
 
   const handleSearch = (searchCity = city) => {
-    if (searchCity.trim() === "") return;
+    if (!searchCity.trim()) return;
 
     onSearch(searchCity);
 
     let searches = JSON.parse(localStorage.getItem("recentSearches")) || [];
+
     if (!searches.includes(searchCity)) {
       searches.unshift(searchCity);
     }
+
     searches = searches.slice(0, 5);
     localStorage.setItem("recentSearches", JSON.stringify(searches));
+
     setRecentSearches(searches);
     setCity("");
+    setSuggestions([]);
   };
 
   return (
-    <div className="flex flex-col items-center mt-2 px-4">
-      <div className="relative w-full max-w-xl">
+    <div className="w-full max-w-5xl mx-auto mt-4 relative">
+      <div className="relative w-full">
         {/* Search icon */}
-        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
+            className="h-4 w-4"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -48,23 +82,52 @@ export default function Search({ onSearch }) {
 
         {/* Input */}
         <input
+          style={{ fontFamily: "var(--font-space)" }}
           type="text"
           placeholder="Search for a city"
           value={city}
-          onChange={(e) => setCity(e.target.value)}
+          onChange={handleChange}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          className="w-full h-10 pl-10 pr-4 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="
+            w-full
+            h-12
+            rounded-xl
+            pl-10
+            pr-4
+            bg-[#26303B]
+            border border-gray-700
+            text-white
+            placeholder-gray-400
+            focus:outline-none
+            focus:ring-2
+            focus:ring-blue-500
+          "
         />
       </div>
 
+      {/* Suggestions */}
+      {suggestions.length > 0 && (
+        <div className="absolute z-50 mt-1 w-full bg-[#26303B] border border-gray-700 rounded-xl overflow-hidden">
+          {suggestions.map((s) => (
+            <div
+              key={s}
+              onClick={() => handleSearch(s)}
+              className="px-4 py-2 cursor-pointer text-white hover:bg-[#2F3A46]"
+            >
+              {s}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Recent Searches */}
       {recentSearches.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           {recentSearches.map((c) => (
             <button
               key={c}
               onClick={() => handleSearch(c)}
-              className="bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600 text-sm"
+              className="px-3 py-1 text-sm rounded-lg bg-[#26303B] text-white hover:bg-[#2F3A46]"
             >
               {c}
             </button>

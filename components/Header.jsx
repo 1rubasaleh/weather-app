@@ -2,9 +2,20 @@ import Image from "next/image";
 
 export default function Header({ unit, setUnit }) {
   return (
-    <header className="flex justify-between items-center px-4 md:px-8 lg:px-12 py-3  border-b border-[rgba(229,232,235,0.2)] text-white overflow-x-hidden">
-      {/* Left side: icon + title */}
-      <div className="flex items-center gap-3">
+    <header
+      className="
+        w-full
+        h-12
+        flex
+        items-center
+        justify-between
+        px-10
+        border-b border-[#E5E8EB33]
+        text-white
+      "
+    >
+      {/* Left: icon + title */}
+      <div className="flex items-center gap-4 w-36 h-5.75">
         <Image
           src="/icons/icon.png"
           alt="Weather icon"
@@ -12,25 +23,28 @@ export default function Header({ unit, setUnit }) {
           height={16}
           priority
         />
-        <span className="text-sm md:text-base font-space font-bold">
+        <span
+          style={{ fontFamily: "var(--font-space)" }}
+          className=" w-28  h-5.75  text-[18px] leading-5.75  font-space font-bold  tracking-[0px]"
+        >
           Weather App
         </span>
       </div>
 
-      {/* Right side: °C + thermometer */}
-      <div className="flex items-center gap-2">
+      {/* Right: unit toggle */}
+      <div className="flex items-center gap-2 w-13 h-5.75 opacity-100">
         <span
+          style={{ fontFamily: "var(--font-space)" }}
           onClick={() => setUnit(unit === "C" ? "F" : "C")}
-          className="cursor-pointer select-none text-sm font-semibold hover:text-blue-400 transition"
-          title="Click to change unit"
+          className="cursor-pointer select-none  text-[18px] leading-5.75 font-space font-bold tracking-[0px] hover:text-blue-400 transition h-5.75 w-6.75 "
         >
           °{unit}
         </span>
         <Image
           src="/icons/temp.png"
           alt="Thermometer icon"
-          width={20}
-          height={20}
+          width={25}
+          height={25}
         />
       </div>
     </header>
