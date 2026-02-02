@@ -10,23 +10,18 @@ function cToF(c) {
 
 export default function WeatherStats({ humidity, windMph, feelsLikeC, unit }) {
   return (
-    <section className="w-full max-w-5xl mx-auto px-0 mt-4">
-      {/* 
-        Responsive grid:
-        - 1 column on mobile
-        - 3 columns on tablet & desktop
-      */}
+    <section className="w-full max-w-[90%] md:max-w-[960px] mx-auto mt-4">
       <div
         style={{ fontFamily: "var(--font-space)" }}
         className="
-    grid
-    grid-cols-1
-    place-items-center
-    md:grid-cols-3
-    md:place-items-stretch
-    gap-3
-    md:gap-4
-  "
+          grid
+          grid-cols-1
+          place-items-center
+          md:grid-cols-3
+          md:place-items-stretch
+          gap-3
+          md:gap-4
+        "
       >
         {/* Humidity */}
         <StatCard
