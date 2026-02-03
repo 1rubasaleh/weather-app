@@ -10,8 +10,10 @@ import CurrentWeather from "@/components/CurrentWeather";
 import { getIconSrc } from "@/lib/weatherIcons";
 
 const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
+const DEFAULT_CITY = "Amman"; // Default capital city
 
-/* ---------------- Skeleton Loader ---------------- */
+// ---------------- Skeleton Loader ----------------
+// Shows placeholder while loading weather data
 function Skeleton() {
   return (
     <div className="animate-pulse space-y-4 mt-6">
@@ -23,42 +25,40 @@ function Skeleton() {
 }
 
 export default function Home() {
-  const [weather, setWeather] = useState(null);
-  const [forecast, setForecast] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [unit, setUnit] = useState("C");
+  const [weather, setWeather] = useState(null); // Current weather info
+  const [forecast, setForecast] = useState([]); // 5-day forecast
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(""); // Error message
+  const [unit, setUnit] = useState("C"); // Temperature unit
 
-  /* ---------------- Fetch weather by city ---------------- */
-  const fetchWeather = async (city) => {
+  // ---------- Fetch weather by coordinates ----------
+  const fetchWeatherByCoords = async (lat, lon, locationName) => {
     setLoading(true);
     setError("");
 
     try {
+      // Fetch current weather
       const res = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`,
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`,
       );
-      if (!res.ok) throw new Error("City not found");
-
       const data = await res.json();
 
       setWeather({
-        city: data.name,
-        country: data.sys.country,
+        location: locationName || `${data.name}, ${data.sys.country}`, // Show area + city if available
         description: data.weather[0].description,
         iconSrc: getIconSrc(data.weather[0].description),
         humidity: data.main.humidity,
         windMph: data.wind.speed,
-        feelsLikeC: data.main.feels_like,
+        feelsLikeC: Math.round(data.main.feels_like),
       });
 
+      // Fetch 5-day forecast
       const forecastRes = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`,
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`,
       );
-      if (!forecastRes.ok) throw new Error("Forecast not available");
-
       const forecastData = await forecastRes.json();
 
+      // Group forecast by date
       const daysMap = {};
       forecastData.list.forEach((item) => {
         const date = item.dt_txt.split(" ")[0];
@@ -73,19 +73,20 @@ export default function Home() {
         daysMap[date].temps.push(item.main.temp);
       });
 
-      const days = Object.values(daysMap)
-        .slice(0, 5)
-        .map((day) => ({
-          date: day.date,
-          highC: Math.max(...day.temps),
-          lowC: Math.min(...day.temps),
-          conditionText: day.conditionText,
-          iconSrc: day.iconSrc,
-        }));
-
-      setForecast(days);
-    } catch (err) {
-      setError(err.message);
+      // Convert daysMap to array and calculate high/low
+      setForecast(
+        Object.values(daysMap)
+          .slice(0, 5)
+          .map((d) => ({
+            date: d.date,
+            highC: Math.round(Math.max(...d.temps)),
+            lowC: Math.round(Math.min(...d.temps)),
+            conditionText: d.conditionText,
+            iconSrc: d.iconSrc,
+          })),
+      );
+    } catch {
+      setError("Failed to load weather");
       setWeather(null);
       setForecast([]);
     } finally {
@@ -93,106 +94,67 @@ export default function Home() {
     }
   };
 
-  /* ---------------- Fetch weather by coordinates ---------------- */
-  const fetchWeatherByCoords = async (lat, lon) => {
+  // ---------- Handle search from SearchBar ----------
+  const handleSearch = async (label) => {
     setLoading(true);
     setError("");
 
     try {
-      const res = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`,
+      const geoRes = await fetch(
+        `https://api.openweathermap.org/geo/1.0/direct?q=${label}&limit=1&appid=${API_KEY}`,
       );
-      const data = await res.json();
+      const geoData = await geoRes.json();
 
-      setWeather({
-        city: data.name,
-        country: data.sys.country,
-        description: data.weather[0].description,
-        iconSrc: getIconSrc(data.weather[0].description),
-        humidity: data.main.humidity,
-        windMph: data.wind.speed,
-        feelsLikeC: data.main.feels_like,
-      });
+      if (!geoData[0]) throw new Error("Location not found");
 
-      const forecastRes = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`,
-      );
-      const forecastData = await forecastRes.json();
-
-      const daysMap = {};
-      forecastData.list.forEach((item) => {
-        const date = item.dt_txt.split(" ")[0];
-        if (!daysMap[date]) {
-          daysMap[date] = {
-            date,
-            temps: [],
-            conditionText: item.weather[0].description,
-            iconSrc: getIconSrc(item.weather[0].description),
-          };
-        }
-        daysMap[date].temps.push(item.main.temp);
-      });
-
-      const days = Object.values(daysMap)
-        .slice(0, 5)
-        .map((day) => ({
-          date: day.date,
-          highC: Math.max(...day.temps),
-          lowC: Math.min(...day.temps),
-          conditionText: day.conditionText,
-          iconSrc: day.iconSrc,
-        }));
-
-      setForecast(days);
-    } catch {
-      setError("Failed to load weather");
-    } finally {
+      await fetchWeatherByCoords(geoData[0].lat, geoData[0].lon, label);
+    } catch (err) {
+      setError(err.message);
       setLoading(false);
     }
   };
 
-  /* ---------------- Fetch weather by IP ---------------- */
-  const fetchWeatherByIP = async () => {
-    try {
-      const res = await fetch("https://ipapi.co/json/");
-      const data = await res.json();
-      if (data.city) {
-        fetchWeather(data.city);
-      } else {
-        fetchWeather("Amman");
-      }
-    } catch {
-      fetchWeather("Amman");
-    }
-  };
-
-  /* ---------------- Initial load ---------------- */
+  // ---------- Initial load ----------
   useEffect(() => {
     if (!navigator.geolocation) {
-      fetchWeatherByIP();
+      // If no geolocation → fallback to capital city
+      handleSearch(DEFAULT_CITY);
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
-      (pos) => fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude),
-      () => fetchWeatherByIP(),
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+
+        // Reverse geocode to get precise area + city
+        fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=en`,
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            const city = data.address.city || data.address.town || DEFAULT_CITY;
+            const suburb =
+              data.address.suburb || data.address.neighbourhood || "";
+            const location = suburb ? `${suburb}, ${city}` : city;
+
+            fetchWeatherByCoords(latitude, longitude, location);
+          })
+          .catch(() => handleSearch(DEFAULT_CITY));
+      },
+      () => handleSearch(DEFAULT_CITY), // User denies permission → fallback to capital
+      { enableHighAccuracy: true },
     );
   }, []);
 
-  /* ---------------- Render ---------------- */
   return (
-    <main className="min-h-screen flex flex-col bg-[#0F1417] text-slate-50">
+    <main className="min-h-screen bg-[#0F1417] text-slate-50 flex flex-col">
       <Header unit={unit} setUnit={setUnit} />
 
-      {/* Container الرئيسي - flex-grow + scrollable */}
-      <div className="flex-grow overflow-auto w-[90%] sm:w-full max-w-5xl px-4 sm:px-6 md:px-10 mx-auto flex flex-col">
-        <Search onSearch={fetchWeather} />
+      <div className="w-[90%] max-w-5xl mx-auto px-4">
+        <Search onSearch={handleSearch} />
 
         {loading && (
-          <div className="text-center flex flex-col items-center mt-6">
-            <p className="text-sm text-slate-400 mb-4">
-              Loading your location & weather...
-            </p>
+          <div className="text-center mt-6">
             <Skeleton />
           </div>
         )}
@@ -200,26 +162,23 @@ export default function Home() {
         {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
         {weather && !loading && (
-          <CurrentWeather
-            city={weather.city}
-            country={weather.country}
-            description={weather.description}
-            temp={weather.feelsLikeC}
-            unit={unit}
-          />
-        )}
+          <>
+            <CurrentWeather
+              location={weather.location}
+              description={weather.description}
+              temp={weather.feelsLikeC}
+              unit={unit}
+            />
 
-        {weather && !loading && (
-          <WeatherStats
-            humidity={weather.humidity}
-            windMph={weather.windMph}
-            feelsLikeC={weather.feelsLikeC}
-            unit={unit}
-          />
-        )}
+            <WeatherStats
+              humidity={weather.humidity}
+              windMph={weather.windMph}
+              feelsLikeC={weather.feelsLikeC}
+              unit={unit}
+            />
 
-        {forecast.length > 0 && !loading && (
-          <ForecastTable days={forecast} unit={unit} />
+            <ForecastTable days={forecast} unit={unit} />
+          </>
         )}
       </div>
 
