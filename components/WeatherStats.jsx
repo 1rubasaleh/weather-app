@@ -41,18 +41,21 @@ export default function WeatherStats({ humidity, windMph, feelsLikeC, unit }) {
           />
 
           {/* Feels Like */}
-          <div className="col-span-2 md:col-span-1 flex justify-center">
-            <StatCard
-              title="Feels Like"
-              value={
-                unit === "C"
-                  ? `${Math.round(feelsLikeC)}°C`
-                  : `${Math.round(cToF(feelsLikeC))}°F`
-              }
-              subLabel="Thermometer"
-              iconSrc="/icons/temp.png"
-            />
-          </div>
+       <div className="col-span-2 md:col-span-1 flex justify-center">
+  <div className="w-full flex justify-center text-center md:text-left">
+    <StatCard
+      title="Feels Like"
+      value={
+        unit === "C"
+          ? `${Math.round(feelsLikeC)}°C`
+          : `${Math.round(cToF(feelsLikeC))}°F`
+      }
+      subLabel="Thermometer"
+      iconSrc="/icons/temp.png"
+    />
+  </div>
+</div>
+
         </div>
       </div>
     </section>
