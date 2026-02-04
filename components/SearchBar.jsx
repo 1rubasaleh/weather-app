@@ -56,8 +56,8 @@ export default function Search({ onSearch }) {
 
   return (
     <section className="w-full flex justify-center mt-10 relative">
-      {/* Wrapper same as table & cards */}
-      <div className="w-full max-w-[90%] md:max-w-[960px] px-4 relative">
+      {/* Wrapper same width as table & cards */}
+      <div className="w-full max-w-[90%] sm:max-w-[90%] md:max-w-[960px] mx-auto px-4 relative">
         {/* Input wrapper */}
         <div className="relative w-full">
           {/* Search Icon */}
