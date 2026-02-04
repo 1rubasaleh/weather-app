@@ -1,10 +1,3 @@
-// ForecastTable displays 5-day forecast
-// -----------------------------------
-// - Supports °C/°F conversion
-// - Responsive layout: stacked on mobile, table on larger screens
-// - Desktop sizes match Figma exactly
-// - Mobile: no divider under title, no icons in rows
-
 import Image from "next/image";
 
 function formatDayLabel(date) {
@@ -27,7 +20,7 @@ export default function ForecastTable({ days, unit }) {
           text-white
           my-4
           pt-5
-          px-6
+          px-4 md:px-6
           pb-3
         "
       >
@@ -35,7 +28,7 @@ export default function ForecastTable({ days, unit }) {
       </div>
 
       {/* Table container */}
-      <div className="border border-[#384757] rounded-[12px] w-full md:max-w-[926px] mx-auto overflow-hidden">
+      <div className="border border-[#384757] rounded-[12px] w-full px-4 md:px-0 md:max-w-[926px] mx-auto overflow-hidden">
         {/* Table Header (Desktop only) */}
         <div
           style={{ fontFamily: "var(--font-space)" }}
@@ -66,7 +59,7 @@ export default function ForecastTable({ days, unit }) {
               md:grid md:grid-cols-[200px_220px_300px_1fr]
               md:h-[72px]
               md:items-center
-              px-6
+              px-0 md:px-6
               py-3 md:py-0
               ${idx !== 0 ? "border-t border-gray-400" : ""}
             `}
@@ -97,9 +90,7 @@ export default function ForecastTable({ days, unit }) {
             >
               {unit === "C"
                 ? `${Math.round(d.highC)}°C / ${Math.round(d.lowC)}°C`
-                : `${Math.round(toF(d.highC))}°F / ${Math.round(
-                    toF(d.lowC),
-                  )}°F`}
+                : `${Math.round(toF(d.highC))}°F / ${Math.round(toF(d.lowC))}°F`}
             </div>
 
             {/* Condition */}
