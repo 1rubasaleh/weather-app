@@ -3,6 +3,7 @@
 // - Supports °C/°F conversion
 // - Responsive layout: stacked on mobile, table on larger screens
 // - Desktop sizes match Figma exactly
+// - Mobile: no divider under title, no icons in rows
 
 import Image from "next/image";
 
@@ -22,7 +23,13 @@ export default function ForecastTable({ days, unit }) {
       {/* Section title */}
       <div
         style={{ fontFamily: "var(--font-space)" }}
-        className="text-white my-4 pt-5 px-4 pb-3 border-b border-gray-400 md:border-none"
+        className="
+          text-white
+          my-4
+          pt-5
+          px-6
+          pb-3
+        "
       >
         <p className="font-bold text-[22px] leading-7">
           5-Day Forecast
@@ -62,13 +69,20 @@ export default function ForecastTable({ days, unit }) {
               md:h-[72px]
               md:items-center
               px-6
+              py-3 md:py-0
               ${idx !== 0 ? "border-t border-gray-400" : ""}
             `}
           >
             {/* Day */}
             <div
               style={{ fontFamily: "var(--font-space)" }}
-              className="text-sm text-slate-300 font-medium flex justify-between md:justify-start"
+              className="
+                text-sm
+                text-slate-300
+                font-medium
+                flex justify-between
+                md:justify-start
+              "
             >
               {formatDayLabel(d.date)}
             </div>
@@ -76,23 +90,35 @@ export default function ForecastTable({ days, unit }) {
             {/* High / Low */}
             <div
               style={{ fontFamily: "var(--font-space)" }}
-              className="text-sm text-slate-300 flex justify-between md:justify-center"
+              className="
+                text-sm
+                text-slate-300
+                flex justify-between
+                md:justify-center
+              "
             >
               {unit === "C"
                 ? `${Math.round(d.highC)}°C / ${Math.round(d.lowC)}°C`
-                : `${Math.round(toF(d.highC))}°F / ${Math.round(toF(d.lowC))}°F`}
+                : `${Math.round(toF(d.highC))}°F / ${Math.round(
+                    toF(d.lowC)
+                  )}°F`}
             </div>
 
             {/* Condition */}
             <div
               style={{ fontFamily: "var(--font-space)" }}
-              className="text-sm text-slate-400 flex justify-between md:justify-center"
+              className="
+                text-sm
+                text-slate-400
+                flex justify-between
+                md:justify-center
+              "
             >
               {d.conditionText}
             </div>
 
-            {/* Icon */}
-            <div className="flex justify-end items-center">
+            {/* Icon (hidden on mobile) */}
+            <div className="hidden md:flex justify-end items-center">
               <Image src={d.iconSrc} alt="" width={24} height={24} />
             </div>
           </div>
