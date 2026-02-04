@@ -3,9 +3,8 @@ import Image from "next/image";
 /*
   StatCard Component
   ------------------
-  - Displays a single weather statistic
-  - Shows title, value, icon, and sub-label
-  - Fully responsive: adjusts width, padding, and font sizes
+  - Mobile: content centered
+  - Desktop: content left-aligned
 */
 export default function StatCard({ title, value, subLabel, iconSrc }) {
   return (
@@ -21,10 +20,14 @@ export default function StatCard({ title, value, subLabel, iconSrc }) {
         max-w-xs
         md:max-w-sm
         h-auto
+        items-center md:items-start
+        text-center md:text-left
       "
     >
       {/* Title */}
-      <span className="font-space text-xs text-slate-400">{title}</span>
+      <span className="font-space text-xs text-slate-400">
+        {title}
+      </span>
 
       {/* Value */}
       <span className="font-space font-semibold text-lg sm:text-xl md:text-2xl text-white break-words">
@@ -32,11 +35,11 @@ export default function StatCard({ title, value, subLabel, iconSrc }) {
       </span>
 
       {/* Icon + SubLabel */}
-      <div className="mt-1 flex items-center gap-2 text-[11px] sm:text-xs text-slate-400">
+      <div className="mt-1 flex items-center justify-center md:justify-start gap-2 text-[11px] sm:text-xs text-slate-400">
         <Image
           src={iconSrc}
           alt={subLabel}
-          width={20} // slightly larger on all screens
+          width={20}
           height={20}
           className="shrink-0"
         />
