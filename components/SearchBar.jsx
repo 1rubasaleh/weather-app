@@ -20,13 +20,11 @@ export default function Search({ onSearch }) {
 
     try {
       const res = await fetch(
-        `https://api.openweathermap.org/geo/1.0/direct?q=${value}&limit=5&appid=${API_KEY}`
+        `https://api.openweathermap.org/geo/1.0/direct?q=${value}&limit=5&appid=${API_KEY}`,
       );
       const data = await res.json();
 
-      const formatted = data.map(
-        (item) => `${item.name}, ${item.country}`
-      );
+      const formatted = data.map((item) => `${item.name}, ${item.country}`);
       setSuggestions(formatted);
     } catch (err) {
       console.error("Failed to fetch city suggestions:", err);
@@ -35,8 +33,7 @@ export default function Search({ onSearch }) {
   };
 
   useEffect(() => {
-    const searches =
-      JSON.parse(localStorage.getItem("recentSearches")) || [];
+    const searches = JSON.parse(localStorage.getItem("recentSearches")) || [];
     setRecentSearches(searches);
   }, []);
 
@@ -45,18 +42,12 @@ export default function Search({ onSearch }) {
 
     onSearch(searchCity);
 
-    let searches =
-      JSON.parse(localStorage.getItem("recentSearches")) || [];
-
+    let searches = JSON.parse(localStorage.getItem("recentSearches")) || [];
     if (!searches.includes(searchCity)) {
       searches.unshift(searchCity);
     }
-
     searches = searches.slice(0, 5);
-    localStorage.setItem(
-      "recentSearches",
-      JSON.stringify(searches)
-    );
+    localStorage.setItem("recentSearches", JSON.stringify(searches));
 
     setRecentSearches(searches);
     setCity("");
@@ -64,9 +55,9 @@ export default function Search({ onSearch }) {
   };
 
   return (
-    <section className="w-full flex justify-center mt-4 relative">
+    <section className="w-full flex justify-center mt-10 relative">
       {/* Wrapper same as table & cards */}
-      <div className="w-full md:max-w-[960px] px-4 relative">
+      <div className="w-full max-w-[90%] md:max-w-[960px] px-4 relative">
         {/* Input wrapper */}
         <div className="relative w-full">
           {/* Search Icon */}
@@ -94,9 +85,7 @@ export default function Search({ onSearch }) {
             placeholder="Search for a city"
             value={city}
             onChange={handleChange}
-            onKeyDown={(e) =>
-              e.key === "Enter" && handleSearch()
-            }
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             className="
               w-full
               h-11 sm:h-12

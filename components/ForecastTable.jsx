@@ -31,9 +31,7 @@ export default function ForecastTable({ days, unit }) {
           pb-3
         "
       >
-        <p className="font-bold text-[22px] leading-7">
-          5-Day Forecast
-        </p>
+        <p className="font-bold text-[22px] leading-7">5-Day Forecast</p>
       </div>
 
       {/* Table container */}
@@ -100,7 +98,7 @@ export default function ForecastTable({ days, unit }) {
               {unit === "C"
                 ? `${Math.round(d.highC)}°C / ${Math.round(d.lowC)}°C`
                 : `${Math.round(toF(d.highC))}°F / ${Math.round(
-                    toF(d.lowC)
+                    toF(d.lowC),
                   )}°F`}
             </div>
 
