@@ -1,3 +1,9 @@
+// ForecastTable displays 5-day forecast
+// -----------------------------------
+// - Supports °C/°F conversion
+// - Responsive layout: stacked on mobile, table on larger screens
+// - Desktop sizes match Figma exactly
+
 import Image from "next/image";
 
 function formatDayLabel(date) {
@@ -16,19 +22,29 @@ export default function ForecastTable({ days, unit }) {
       {/* Section title */}
       <div
         style={{ fontFamily: "var(--font-space)" }}
-        className="text-white my-4 pt-5 px-4 pb-3 md:border-b md:border-gray-400 md:border-none rounded-t-xl"
+        className="text-white my-4 pt-5 px-4 pb-3 border-b border-gray-400 md:border-none"
       >
-        <p className="font-space font-bold text-lg md:text-[22px] leading-7">
+        <p className="font-bold text-[22px] leading-7">
           5-Day Forecast
         </p>
       </div>
 
       {/* Table container */}
-      <div className="border border-[#384757] rounded-xl w-full max-w-[90%] md:max-w-[960px] mx-auto overflow-hidden">
-        {/* Table Header */}
+      <div className="border border-[#384757] rounded-[12px] w-full md:max-w-[926px] mx-auto overflow-hidden">
+        {/* Table Header (Desktop only) */}
         <div
           style={{ fontFamily: "var(--font-space)" }}
-          className="hidden md:grid grid-cols-4 gap-8 px-3 py-4 text-xs text-slate-300 bg-[#1C2129] rounded-t-xl border-b border-gray-400"
+          className="
+            hidden md:grid
+            md:grid-cols-[200px_220px_300px_1fr]
+            px-6
+            h-[46px]
+            items-center
+            text-[14px]
+            text-slate-300
+            bg-[#1C2129]
+            border-b border-gray-400
+          "
         >
           <span>Day</span>
           <span className="text-center">High / Low</span>
@@ -40,14 +56,19 @@ export default function ForecastTable({ days, unit }) {
         {days.map((d, idx) => (
           <div
             key={d.date}
-            className={`flex flex-col md:grid md:grid-cols-4 md:gap-8 px-3 py-3 ${
-              idx !== 0 ? "border-t border-gray-400" : ""
-            }`}
+            className={`
+              flex flex-col
+              md:grid md:grid-cols-[200px_220px_300px_1fr]
+              md:h-[72px]
+              md:items-center
+              px-6
+              ${idx !== 0 ? "border-t border-gray-400" : ""}
+            `}
           >
             {/* Day */}
             <div
               style={{ fontFamily: "var(--font-space)" }}
-              className="text-xs md:text-sm text-slate-300 font-medium flex justify-between md:justify-start"
+              className="text-sm text-slate-300 font-medium flex justify-between md:justify-start"
             >
               {formatDayLabel(d.date)}
             </div>
@@ -55,7 +76,7 @@ export default function ForecastTable({ days, unit }) {
             {/* High / Low */}
             <div
               style={{ fontFamily: "var(--font-space)" }}
-              className="text-xs md:text-sm text-slate-300 flex justify-between md:justify-center mt-1 md:mt-0"
+              className="text-sm text-slate-300 flex justify-between md:justify-center"
             >
               {unit === "C"
                 ? `${Math.round(d.highC)}°C / ${Math.round(d.lowC)}°C`
@@ -65,14 +86,14 @@ export default function ForecastTable({ days, unit }) {
             {/* Condition */}
             <div
               style={{ fontFamily: "var(--font-space)" }}
-              className="text-xs md:text-sm text-slate-400 flex justify-between md:justify-center mt-1 md:mt-0"
+              className="text-sm text-slate-400 flex justify-between md:justify-center"
             >
               {d.conditionText}
             </div>
 
             {/* Icon */}
-            <div className="flex justify-end items-center mt-1 md:mt-0">
-              <Image src={d.iconSrc} alt="" width={20} height={20} />
+            <div className="flex justify-end items-center">
+              <Image src={d.iconSrc} alt="" width={24} height={24} />
             </div>
           </div>
         ))}
