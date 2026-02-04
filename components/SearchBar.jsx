@@ -57,7 +57,7 @@ export default function Search({ onSearch }) {
   return (
     <section className="w-full flex justify-center mt-10 relative">
       {/* Wrapper same width as table & cards */}
-      <div className="w-full max-w-[90%] sm:max-w-[90%] md:max-w-[960px] mx-auto px-4 relative">
+      <div className="w-full px-4 md:max-w-[960px] mx-auto relative">
         {/* Input wrapper */}
         <div className="relative w-full">
           {/* Search Icon */}
@@ -88,7 +88,7 @@ export default function Search({ onSearch }) {
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             className="
               w-full
-              h-11 sm:h-12
+              h-12
               rounded-xl
               pl-10
               pr-4
