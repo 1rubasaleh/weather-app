@@ -10,10 +10,8 @@ import CurrentWeather from "@/components/CurrentWeather";
 import { getIconSrc } from "@/lib/weatherIcons";
 
 const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
-const DEFAULT_CITY = "Amman"; // Default capital city
+const DEFAULT_CITY = "Amman"; // fallback
 
-// ---------------- Skeleton Loader ----------------
-// Shows placeholder while loading weather data
 function Skeleton() {
   return (
     <div className="animate-pulse space-y-4 mt-6">
@@ -25,26 +23,28 @@ function Skeleton() {
 }
 
 export default function Home() {
-  const [weather, setWeather] = useState(null); // Current weather info
-  const [forecast, setForecast] = useState([]); // 5-day forecast
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(""); // Error message
-  const [unit, setUnit] = useState("C"); // Temperature unit
+  const [weather, setWeather] = useState(null);
+  const [forecast, setForecast] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [unit, setUnit] = useState("C");
 
-  // ---------- Fetch weather by coordinates ----------
+  // ---- Fetch weather by coordinates ----
   const fetchWeatherByCoords = async (lat, lon, locationName) => {
     setLoading(true);
     setError("");
+    setWeather(null);
+    setForecast([]);
 
     try {
-      // Fetch current weather
+      // Current weather
       const res = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`,
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}&lang=en`,
       );
       const data = await res.json();
 
       setWeather({
-        location: locationName || `${data.name}, ${data.sys.country}`, // Show area + city if available
+        location: locationName,
         description: data.weather[0].description,
         iconSrc: getIconSrc(data.weather[0].description),
         humidity: data.main.humidity,
@@ -52,13 +52,12 @@ export default function Home() {
         feelsLikeC: Math.round(data.main.feels_like),
       });
 
-      // Fetch 5-day forecast
+      // Forecast
       const forecastRes = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`,
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}&lang=en`,
       );
       const forecastData = await forecastRes.json();
 
-      // Group forecast by date
       const daysMap = {};
       forecastData.list.forEach((item) => {
         const date = item.dt_txt.split(" ")[0];
@@ -73,7 +72,6 @@ export default function Home() {
         daysMap[date].temps.push(item.main.temp);
       });
 
-      // Convert daysMap to array and calculate high/low
       setForecast(
         Object.values(daysMap)
           .slice(0, 5)
@@ -86,18 +84,25 @@ export default function Home() {
           })),
       );
     } catch {
-      setError("Failed to load weather");
       setWeather(null);
       setForecast([]);
+      setError("Failed to load weather");
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------- Handle search from SearchBar ----------
+  // ---- Search by label ----
   const handleSearch = async (label) => {
-    setLoading(true);
+    if (!label) {
+      setWeather(null);
+      setForecast([]);
+      setError("Not Found. Try again");
+      return;
+    }
+
     setError("");
+    setLoading(true);
 
     try {
       const geoRes = await fetch(
@@ -105,63 +110,94 @@ export default function Home() {
       );
       const geoData = await geoRes.json();
 
-      if (!geoData[0]) throw new Error("Location not found");
+      if (!geoData[0]) {
+        setWeather(null);
+        setForecast([]);
+        setError("Not Found. Try again");
+        setLoading(false);
+        return;
+      }
 
-      await fetchWeatherByCoords(geoData[0].lat, geoData[0].lon, label);
-    } catch (err) {
-      setError(err.message);
+      const place = geoData[0];
+      const location = `${place.name}, ${place.country}`;
+      await fetchWeatherByCoords(place.lat, place.lon, location);
+    } catch {
+      setWeather(null);
+      setForecast([]);
+      setError("Not Found. Try again");
+    } finally {
       setLoading(false);
     }
   };
 
-  // ---------- Initial load ----------
+  // ---- Use geolocation or fallback to country capital ----
   useEffect(() => {
+    const getCapitalByCountry = async (countryCode) => {
+      try {
+        const res = await fetch(
+          `https://restcountries.com/v3.1/alpha/${countryCode}`,
+        );
+        const data = await res.json();
+        if (data[0] && data[0].capital && data[0].capital.length > 0) {
+          return data[0].capital[0];
+        }
+      } catch {}
+      return DEFAULT_CITY;
+    };
+
+    const handleFallbackByIP = async () => {
+      try {
+        // free IP Geolocation API
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        const capitalCity = await getCapitalByCountry(data.country_code);
+        handleSearch(capitalCity);
+      } catch {
+        handleSearch(DEFAULT_CITY);
+      }
+    };
+
     if (!navigator.geolocation) {
-      // If no geolocation → fallback to capital city
-      handleSearch(DEFAULT_CITY);
+      handleFallbackByIP();
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
         const { latitude, longitude } = pos.coords;
-
-        // Reverse geocode to get precise area + city
-        fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=en`,
-        )
-          .then((res) => res.json())
-          .then((data) => {
-            const city = data.address.city || data.address.town || DEFAULT_CITY;
-            const suburb =
-              data.address.suburb || data.address.neighbourhood || "";
-            const location = suburb ? `${suburb}, ${city}` : city;
-
-            fetchWeatherByCoords(latitude, longitude, location);
-          })
-          .catch(() => handleSearch(DEFAULT_CITY));
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=en`,
+          );
+          const data = await res.json();
+          const a = data.address || {};
+          const parts = [
+            a.suburb || a.neighbourhood || a.village,
+            a.city || a.town || a.state,
+            a.country,
+          ].filter(Boolean);
+          const locationName = parts.join(", ");
+          fetchWeatherByCoords(latitude, longitude, locationName);
+        } catch {
+          handleFallbackByIP();
+        }
       },
-      () => handleSearch(DEFAULT_CITY), // User denies permission → fallback to capital
+      () => handleFallbackByIP(),
       { enableHighAccuracy: true },
     );
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#0F1417] text-slate-50 flex flex-col">
+    <main className="min-h-screen bg-[#0F1417] text-slate-50 flex flex-col px-2 sm:px-6">
       <Header unit={unit} setUnit={setUnit} />
 
-      <div className="w-[90%] max-w-5xl mx-auto px-4">
+      <div className="w-[90%] max-w-5xl mx-auto">
         <Search onSearch={handleSearch} />
 
-        {loading && (
-          <div className="text-center mt-6">
-            <Skeleton />
-          </div>
-        )}
-
+        {loading && <Skeleton />}
         {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
-        {weather && !loading && (
+        {weather && forecast.length > 0 && !error && !loading && (
           <>
             <CurrentWeather
               location={weather.location}
@@ -169,14 +205,12 @@ export default function Home() {
               temp={weather.feelsLikeC}
               unit={unit}
             />
-
             <WeatherStats
               humidity={weather.humidity}
               windMph={weather.windMph}
               feelsLikeC={weather.feelsLikeC}
               unit={unit}
             />
-
             <ForecastTable days={forecast} unit={unit} />
           </>
         )}
