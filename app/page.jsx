@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+
 import Header from "@/components/Header";
 import Search from "@/components/SearchBar";
 import WeatherStats from "@/components/WeatherStats";
@@ -12,12 +14,41 @@ import { getIconSrc } from "@/lib/weatherIcons";
 const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
 const DEFAULT_CITY = "Amman";
 
+/* ================= Animations ================= */
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" },
+  },
+};
+
+const fadeLeft = {
+  hidden: { opacity: 0, x: -40 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.6, ease: "easeOut" },
+  },
+};
+
+const fadeRight = {
+  hidden: { opacity: 0, x: 40 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.6, ease: "easeOut" },
+  },
+};
+
+/* ================= Skeleton ================= */
 function Skeleton() {
   return (
-    <div className="animate-pulse space-y-4 mt-6">
+    <div className="animate-pulse space-y-4 mt-10">
       <div className="h-8 bg-gray-700 rounded w-1/3 mx-auto" />
-      <div className="h-32 bg-gray-700 rounded mx-auto max-w-xl" />
-      <div className="h-20 bg-gray-700 rounded mx-auto max-w-5xl" />
+      <div className="h-32 bg-gray-700 rounded" />
+      <div className="h-24 bg-gray-700 rounded" />
     </div>
   );
 }
@@ -29,13 +60,12 @@ export default function Home() {
   const [error, setError] = useState("");
   const [unit, setUnit] = useState("C");
 
+  /* ================= Fetch by coords ================= */
   const fetchWeatherByCoords = async (lat, lon, locationName) => {
-    setLoading(true);
-    setError("");
-    setWeather(null);
-    setForecast([]);
-
     try {
+      setLoading(true);
+      setError("");
+
       const res = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}&lang=en`,
       );
@@ -89,68 +119,35 @@ export default function Home() {
     }
   };
 
+  /* ================= Search ================= */
   const handleSearch = async (label) => {
     if (!label) {
-      setWeather(null);
-      setForecast([]);
       setError("Not Found. Try again");
       return;
     }
 
-    setError("");
-    setLoading(true);
-
     try {
+      setLoading(true);
+      setError("");
+
       const geoRes = await fetch(
         `https://api.openweathermap.org/geo/1.0/direct?q=${label}&limit=1&appid=${API_KEY}`,
       );
       const geoData = await geoRes.json();
 
-      if (geoData && geoData.length > 0) {
-        const place = geoData[0];
-        const location = `${place.name}, ${place.country}`;
-        await fetchWeatherByCoords(place.lat, place.lon, location);
-        return;
-      }
+      if (!geoData?.[0]) throw new Error();
 
-      const countryRes = await fetch(
-        `https://restcountries.com/v3.1/name/${label}`,
-      );
-      const countryData = await countryRes.json();
-
-      if (
-        !countryData ||
-        !countryData[0] ||
-        !countryData[0].capital ||
-        countryData[0].capital.length === 0
-      ) {
-        throw new Error();
-      }
-
-      const capital = countryData[0].capital[0];
-
-      const capitalGeoRes = await fetch(
-        `https://api.openweathermap.org/geo/1.0/direct?q=${capital}&limit=1&appid=${API_KEY}`,
-      );
-      const capitalGeoData = await capitalGeoRes.json();
-
-      if (!capitalGeoData[0]) {
-        throw new Error();
-      }
-
-      const capitalPlace = capitalGeoData[0];
-      const location = `${capitalPlace.name}, ${capitalPlace.country}`;
-
-      await fetchWeatherByCoords(capitalPlace.lat, capitalPlace.lon, location);
+      const p = geoData[0];
+      await fetchWeatherByCoords(p.lat, p.lon, `${p.name}, ${p.country}`);
     } catch {
       setWeather(null);
       setForecast([]);
-      setError("Not Found. Try again");
-    } finally {
       setLoading(false);
+      setError("Not Found. Try again");
     }
   };
 
+  /* ================= Initial load (GPS) ================= */
   useEffect(() => {
     if (!navigator.geolocation) {
       handleSearch(DEFAULT_CITY);
@@ -160,9 +157,10 @@ export default function Home() {
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
+
         try {
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=en`,
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar`,
           );
           const data = await res.json();
           const a = data.address || {};
@@ -173,9 +171,9 @@ export default function Home() {
             a.country,
           ].filter(Boolean);
 
-          const locationName = parts.join(", ");
+          const locationName = parts.join("، ");
 
-          fetchWeatherByCoords(latitude, longitude, locationName);
+          await fetchWeatherByCoords(latitude, longitude, locationName);
         } catch {
           handleSearch(DEFAULT_CITY);
         }
@@ -186,32 +184,74 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#0F1417] text-slate-50 flex flex-col px-2 sm:px-6">
+    <main className="min-h-screen bg-[#0F1417] text-slate-50 flex flex-col">
       <Header unit={unit} setUnit={setUnit} />
 
-      <div className="w-[90%] max-w-5xl mx-auto">
-        <Search onSearch={handleSearch} />
+      <div className="w-full max-w-[960px] mx-auto px-4 flex-1">
+        {/* Search */}
+        <motion.div variants={fadeUp} initial="hidden" animate="visible">
+          <Search onSearch={handleSearch} />
+        </motion.div>
 
+        {/* Loading */}
         {loading && <Skeleton />}
-        {error && <p className="text-center text-red-500 mt-4">{error}</p>}
 
-        {weather && forecast.length > 0 && !error && !loading && (
-          <>
-            <CurrentWeather
-              location={weather.location}
-              description={weather.description}
-              temp={weather.feelsLikeC}
-              unit={unit}
-            />
-            <WeatherStats
-              humidity={weather.humidity}
-              windMph={weather.windMph}
-              feelsLikeC={weather.feelsLikeC}
-              unit={unit}
-            />
-            <ForecastTable days={forecast} unit={unit} />
-          </>
+        {/* Error */}
+        {!loading && error && (
+          <p className="text-center text-red-500 mt-6">{error}</p>
         )}
+
+        {/* Content */}
+        <AnimatePresence>
+          {!loading && weather && forecast.length > 0 && !error && (
+            <>
+              <motion.section
+                variants={fadeLeft}
+                initial="hidden"
+                animate="visible"
+                className="mt-10"
+              >
+                <CurrentWeather
+                  location={weather.location}
+                  description={weather.description}
+                  temp={weather.feelsLikeC}
+                  unit={unit}
+                />
+              </motion.section>
+
+              <motion.section
+                variants={fadeRight}
+                initial="hidden"
+                animate="visible"
+                className="mt-6"
+              >
+                <WeatherStats
+                  humidity={weather.humidity}
+                  windMph={weather.windMph}
+                  feelsLikeC={weather.feelsLikeC}
+                  unit={unit}
+                />
+              </motion.section>
+
+              <section className="mt-8">
+                <motion.h2
+                  variants={fadeUp}
+                  initial="hidden"
+                  animate="visible"
+                  className="text-lg mb-3"
+                ></motion.h2>
+
+                <motion.div
+                  variants={fadeUp}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <ForecastTable days={forecast} unit={unit} />
+                </motion.div>
+              </section>
+            </>
+          )}
+        </AnimatePresence>
       </div>
 
       <Footer />
