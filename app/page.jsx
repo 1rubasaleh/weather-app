@@ -10,7 +10,7 @@ import CurrentWeather from "@/components/CurrentWeather";
 import { getIconSrc } from "@/lib/weatherIcons";
 
 const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
-const DEFAULT_CITY = "Amman"; // fallback
+const DEFAULT_CITY = "Amman";
 
 function Skeleton() {
   return (
@@ -29,7 +29,6 @@ export default function Home() {
   const [error, setError] = useState("");
   const [unit, setUnit] = useState("C");
 
-  // ---- Fetch weather by coordinates ----
   const fetchWeatherByCoords = async (lat, lon, locationName) => {
     setLoading(true);
     setError("");
@@ -37,7 +36,6 @@ export default function Home() {
     setForecast([]);
 
     try {
-      // Current weather
       const res = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}&lang=en`,
       );
@@ -52,7 +50,6 @@ export default function Home() {
         feelsLikeC: Math.round(data.main.feels_like),
       });
 
-      // Forecast
       const forecastRes = await fetch(
         `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}&lang=en`,
       );
@@ -92,7 +89,6 @@ export default function Home() {
     }
   };
 
-  // ---- Search by label ----
   const handleSearch = async (label) => {
     if (!label) {
       setWeather(null);
@@ -110,17 +106,42 @@ export default function Home() {
       );
       const geoData = await geoRes.json();
 
-      if (!geoData[0]) {
-        setWeather(null);
-        setForecast([]);
-        setError("Not Found. Try again");
-        setLoading(false);
+      if (geoData && geoData.length > 0) {
+        const place = geoData[0];
+        const location = `${place.name}, ${place.country}`;
+        await fetchWeatherByCoords(place.lat, place.lon, location);
         return;
       }
 
-      const place = geoData[0];
-      const location = `${place.name}, ${place.country}`;
-      await fetchWeatherByCoords(place.lat, place.lon, location);
+      const countryRes = await fetch(
+        `https://restcountries.com/v3.1/name/${label}`,
+      );
+      const countryData = await countryRes.json();
+
+      if (
+        !countryData ||
+        !countryData[0] ||
+        !countryData[0].capital ||
+        countryData[0].capital.length === 0
+      ) {
+        throw new Error();
+      }
+
+      const capital = countryData[0].capital[0];
+
+      const capitalGeoRes = await fetch(
+        `https://api.openweathermap.org/geo/1.0/direct?q=${capital}&limit=1&appid=${API_KEY}`,
+      );
+      const capitalGeoData = await capitalGeoRes.json();
+
+      if (!capitalGeoData[0]) {
+        throw new Error();
+      }
+
+      const capitalPlace = capitalGeoData[0];
+      const location = `${capitalPlace.name}, ${capitalPlace.country}`;
+
+      await fetchWeatherByCoords(capitalPlace.lat, capitalPlace.lon, location);
     } catch {
       setWeather(null);
       setForecast([]);
@@ -130,35 +151,9 @@ export default function Home() {
     }
   };
 
-  // ---- Use geolocation or fallback to country capital ----
   useEffect(() => {
-    const getCapitalByCountry = async (countryCode) => {
-      try {
-        const res = await fetch(
-          `https://restcountries.com/v3.1/alpha/${countryCode}`,
-        );
-        const data = await res.json();
-        if (data[0] && data[0].capital && data[0].capital.length > 0) {
-          return data[0].capital[0];
-        }
-      } catch {}
-      return DEFAULT_CITY;
-    };
-
-    const handleFallbackByIP = async () => {
-      try {
-        // free IP Geolocation API
-        const res = await fetch("https://ipapi.co/json/");
-        const data = await res.json();
-        const capitalCity = await getCapitalByCountry(data.country_code);
-        handleSearch(capitalCity);
-      } catch {
-        handleSearch(DEFAULT_CITY);
-      }
-    };
-
     if (!navigator.geolocation) {
-      handleFallbackByIP();
+      handleSearch(DEFAULT_CITY);
       return;
     }
 
@@ -171,18 +166,21 @@ export default function Home() {
           );
           const data = await res.json();
           const a = data.address || {};
+
           const parts = [
             a.suburb || a.neighbourhood || a.village,
             a.city || a.town || a.state,
             a.country,
           ].filter(Boolean);
+
           const locationName = parts.join(", ");
+
           fetchWeatherByCoords(latitude, longitude, locationName);
         } catch {
-          handleFallbackByIP();
+          handleSearch(DEFAULT_CITY);
         }
       },
-      () => handleFallbackByIP(),
+      () => handleSearch(DEFAULT_CITY),
       { enableHighAccuracy: true },
     );
   }, []);
