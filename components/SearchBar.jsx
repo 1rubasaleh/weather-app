@@ -112,8 +112,6 @@ export default function SearchBar({ onSearch }) {
               />
             </svg>
           </div>
-
-          {/* Input */}
           <input
             style={{ fontFamily: "var(--font-space)" }}
             type="text"
@@ -122,12 +120,12 @@ export default function SearchBar({ onSearch }) {
             onChange={handleChange}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             className="
-              w-full max-w-full h-12 rounded-xl pl-10 pr-4 bg-[#26303B]
-              border border-gray-700 text-[14px] sm:text-base
-              text-white placeholder-gray-400
-              focus:outline-none focus:ring-2 focus:ring-blue-500
-              box-border
-            "
+    w-full max-w-full h-12 rounded-xl pl-10 pr-4 bg-[#26303B]
+    border border-gray-700 text-[16px] sm:text-base
+    text-white placeholder-gray-400
+    focus:outline-none focus:ring-2 focus:ring-blue-500
+    box-border
+  "
           />
 
           {/* Suggestions dropdown */}
