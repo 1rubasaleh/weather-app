@@ -17,32 +17,18 @@ const DEFAULT_CITY = "Amman";
 /* ================= Animations ================= */
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: "easeOut" },
-  },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
-
 const fadeLeft = {
   hidden: { opacity: 0, x: -40 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.6, ease: "easeOut" },
-  },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
-
 const fadeRight = {
   hidden: { opacity: 0, x: 40 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.6, ease: "easeOut" },
-  },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
-/* ================= Skeleton ================= */
+/* ================= Skeleton Loader ================= */
 function Skeleton() {
   return (
     <div className="animate-pulse space-y-4 mt-10">
@@ -53,6 +39,13 @@ function Skeleton() {
   );
 }
 
+/* ================= Helper ================= */
+function getNextDate(dateStr) {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split("T")[0];
+}
+
 export default function Home() {
   const [weather, setWeather] = useState(null);
   const [forecast, setForecast] = useState([]);
@@ -60,16 +53,18 @@ export default function Home() {
   const [error, setError] = useState("");
   const [unit, setUnit] = useState("C");
 
-  /* ================= Fetch by coords ================= */
   const fetchWeatherByCoords = async (lat, lon, locationName) => {
     try {
       setLoading(true);
       setError("");
 
+      /* ===== Current Weather ===== */
       const res = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}&lang=en`,
       );
       const data = await res.json();
+
+      if (!data || !data.weather) throw new Error();
 
       setWeather({
         location: locationName,
@@ -80,12 +75,19 @@ export default function Home() {
         feelsLikeC: Math.round(data.main.feels_like),
       });
 
+      /* ===== Forecast ===== */
       const forecastRes = await fetch(
         `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}&lang=en`,
       );
       const forecastData = await forecastRes.json();
 
+      if (!forecastData?.list?.length) {
+        setForecast([]);
+        return;
+      }
+
       const daysMap = {};
+
       forecastData.list.forEach((item) => {
         const date = item.dt_txt.split(" ")[0];
         if (!daysMap[date]) {
@@ -99,18 +101,35 @@ export default function Home() {
         daysMap[date].temps.push(item.main.temp);
       });
 
-      setForecast(
-        Object.values(daysMap)
-          .slice(0, 5)
-          .map((d) => ({
-            date: d.date,
-            highC: Math.round(Math.max(...d.temps)),
-            lowC: Math.round(Math.min(...d.temps)),
-            conditionText: d.conditionText,
-            iconSrc: d.iconSrc,
-          })),
-      );
-    } catch {
+      let daysArray = Object.values(daysMap);
+
+      if (!daysArray.length) {
+        setForecast([]);
+        return;
+      }
+
+      while (daysArray.length < 6 && daysArray.length > 0) {
+        const lastDay = daysArray[daysArray.length - 1];
+        if (!lastDay) break;
+
+        daysArray.push({
+          ...lastDay,
+          date: getNextDate(lastDay.date),
+          temps: lastDay.temps,
+        });
+      }
+
+      const finalForecast = daysArray.slice(1, 6).map((d) => ({
+        date: d.date,
+        highC: Math.round(Math.max(...d.temps)),
+        lowC: Math.round(Math.min(...d.temps)),
+        conditionText: d.conditionText,
+        iconSrc: d.iconSrc,
+      }));
+
+      setForecast(finalForecast);
+    } catch (err) {
+      console.error(err);
       setWeather(null);
       setForecast([]);
       setError("Failed to load weather");
@@ -119,7 +138,6 @@ export default function Home() {
     }
   };
 
-  /* ================= Search ================= */
   const handleSearch = async (label) => {
     if (!label) {
       setError("Not Found. Try again");
@@ -147,7 +165,6 @@ export default function Home() {
     }
   };
 
-  /* ================= Initial load (GPS) ================= */
   useEffect(() => {
     if (!navigator.geolocation) {
       handleSearch(DEFAULT_CITY);
@@ -157,7 +174,6 @@ export default function Home() {
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
-
         try {
           const res = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar`,
@@ -172,7 +188,6 @@ export default function Home() {
           ].filter(Boolean);
 
           const locationName = parts.join("، ");
-
           await fetchWeatherByCoords(latitude, longitude, locationName);
         } catch {
           handleSearch(DEFAULT_CITY);
@@ -184,24 +199,20 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#0F1417] text-slate-50 flex flex-col">
+    <main className="min-h-screen bg-[#0F1417] text-slate-50 flex flex-col overflow-x-hidden">
       <Header unit={unit} setUnit={setUnit} />
 
       <div className="w-full max-w-[960px] mx-auto px-4 flex-1">
-        {/* Search */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
           <Search onSearch={handleSearch} />
         </motion.div>
 
-        {/* Loading */}
         {loading && <Skeleton />}
 
-        {/* Error */}
         {!loading && error && (
           <p className="text-center text-red-500 mt-6">{error}</p>
         )}
 
-        {/* Content */}
         <AnimatePresence>
           {!loading && weather && forecast.length > 0 && !error && (
             <>
@@ -234,17 +245,11 @@ export default function Home() {
               </motion.section>
 
               <section className="mt-8">
-                <motion.h2
-                  variants={fadeUp}
-                  initial="hidden"
-                  animate="visible"
-                  className="text-lg mb-3"
-                ></motion.h2>
-
                 <motion.div
                   variants={fadeUp}
                   initial="hidden"
                   animate="visible"
+                  className="overflow-x-auto"
                 >
                   <ForecastTable days={forecast} unit={unit} />
                 </motion.div>
