@@ -19,24 +19,30 @@ export default function StatCard({ title, value, subLabel }) {
       "
     >
       {/* Title */}
-      <span className="font-space text-xs text-slate-400">{title}</span>
+      <span
+        className="font-space text-xs text-white"
+        style={{ fontFamily: "Space Grotesk" }}
+      >
+        {title}
+      </span>
 
       {/* Value */}
-      <span className="font-space font-semibold text-lg sm:text-xl md:text-2xl text-white break-words">
+      <span
+        className="font-space font-semibold text-lg sm:text-xl md:text-2xl text-white break-words"
+        style={{ fontFamily: "Space Grotesk" }}
+      >
         {value}
       </span>
 
       {/* SubLabel */}
       <span
+        className="text-slate-400"
         style={{
           fontFamily: "Space Grotesk",
           fontWeight: 500,
           fontStyle: "Medium",
-          fontSize: "16px",
-          lineHeight: "24px",
-          color: "#FFFFFF",
-          width: "250px",
-          height: "24px",
+          fontSize: "14px",
+          lineHeight: "20px",
         }}
       >
         {subLabel}

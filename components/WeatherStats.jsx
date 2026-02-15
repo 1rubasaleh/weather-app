@@ -14,6 +14,7 @@ export default function WeatherStats({ humidity, windMph, feelsLikeC, unit }) {
           grid
           grid-cols-1 sm:grid-cols-2 md:grid-cols-3
           gap-4
+          justify-items-center
         "
       >
         {/* Humidity */}
@@ -23,17 +24,15 @@ export default function WeatherStats({ humidity, windMph, feelsLikeC, unit }) {
         <StatCard title="Wind" value={`${windMph} mph`} subLabel="Wind" />
 
         {/* Feels Like */}
-        <div className="sm:col-span-2 md:col-span-1">
-          <StatCard
-            title="Feels Like"
-            value={
-              unit === "C"
-                ? `${Math.round(feelsLikeC)}°C`
-                : `${Math.round(cToF(feelsLikeC))}°F`
-            }
-            subLabel="Thermometer"
-          />
-        </div>
+        <StatCard
+          title="Feels Like"
+          value={
+            unit === "C"
+              ? `${Math.round(feelsLikeC)}°C`
+              : `${Math.round(cToF(feelsLikeC))}°F`
+          }
+          subLabel="Thermometer"
+        />
       </div>
     </section>
   );
