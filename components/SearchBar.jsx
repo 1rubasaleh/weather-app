@@ -5,7 +5,6 @@ import Image from "next/image";
 
 const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
 
-/** ---------- Search Component ---------- */
 export default function SearchBar({ onSearch }) {
   const [city, setCity] = useState("");
   const [recentSearches, setRecentSearches] = useState([]);
@@ -93,8 +92,8 @@ export default function SearchBar({ onSearch }) {
   };
 
   return (
-    <section className="w-full flex justify-center mt-10 relative">
-      <div className="w-full px-4 sm:px-6 md:max-w-[960px] mx-auto relative">
+    <section className="w-full flex justify-center mt-10 relative overflow-x-hidden">
+      <div className="w-full px-4 sm:px-6 md:max-w-[960px] mx-auto relative box-border">
         <div className="relative w-full">
           {/* Search icon */}
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -123,10 +122,11 @@ export default function SearchBar({ onSearch }) {
             onChange={handleChange}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             className="
-              w-full h-12 rounded-xl pl-10 pr-4 bg-[#26303B]
+              w-full max-w-full h-12 rounded-xl pl-10 pr-4 bg-[#26303B]
               border border-gray-700 text-[14px] sm:text-base
               text-white placeholder-gray-400
               focus:outline-none focus:ring-2 focus:ring-blue-500
+              box-border
             "
           />
 
@@ -166,96 +166,6 @@ export default function SearchBar({ onSearch }) {
             </button>
           </div>
         )}
-      </div>
-    </section>
-  );
-}
-
-/** ---------- ForecastTable Component ---------- */
-function formatDayLabel(date) {
-  const d = new Date(date);
-  if (Number.isNaN(d.getTime())) return date;
-  return d.toLocaleDateString(undefined, { weekday: "long" });
-}
-
-function toF(c) {
-  return (c * 9) / 5 + 32;
-}
-
-export function ForecastTable({ days = [], unit }) {
-  const forecast = days;
-
-  return (
-    <section className="w-full flex justify-center">
-      <div className="w-full max-w-[960px] mx-auto overflow-x-auto">
-        <div className="w-full flex items-center px-4 py-3">
-          <p
-            className="text-[#FFFFFF] font-bold text-[22px] w-full"
-            style={{ fontFamily: "Space Grotesk" }}
-          >
-            5-Day Forecast
-          </p>
-        </div>
-
-        <div className="border border-[#384757] rounded-[12px] w-full">
-          {/* Header - Desktop */}
-          <div
-            className="hidden md:grid md:grid-cols-[200px_220px_300px_1fr] px-6 h-[46px] items-center text-[14px] text-[#FFFFFF] bg-[#1C2129] border-b border-white"
-            style={{ fontFamily: "var(--font-space)" }}
-          >
-            <span>Day</span>
-            <span className="text-center">High / Low</span>
-            <span className="text-center">Condition</span>
-            <span className="justify-self-end"></span>
-          </div>
-
-          {/* Forecast Rows */}
-          {forecast.map((d, idx) => (
-            <div
-              key={d.date}
-              className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-[200px_220px_300px_1fr] gap-2 md:h-[72px] items-center px-4 md:px-6 py-3 md:py-0 bg-[#0F1417] text-[#FFFFFF] ${idx !== 0 ? "border-t border-white" : ""}`}
-            >
-              <div
-                className="text-sm font-medium"
-                style={{ fontFamily: "var(--font-space)" }}
-              >
-                {formatDayLabel(d.date)}
-              </div>
-              <div
-                className="text-sm md:text-center"
-                style={{ fontFamily: "var(--font-space)" }}
-              >
-                {unit === "C"
-                  ? `${Math.round(d.highC)}°C / ${Math.round(d.lowC)}°C`
-                  : `${Math.round(toF(d.highC))}°F / ${Math.round(toF(d.lowC))}°F`}
-              </div>
-              <div
-                className="flex items-center justify-between text-sm md:justify-center gap-2"
-                style={{ fontFamily: "var(--font-space)" }}
-              >
-                <span>{d.conditionText}</span>
-                <div className="md:hidden flex-shrink-0">
-                  <Image
-                    src={d.iconSrc}
-                    alt=""
-                    width={28}
-                    height={28}
-                    style={{ display: "block" }}
-                  />
-                </div>
-              </div>
-              <div className="hidden md:flex justify-end items-center">
-                <Image
-                  src={d.iconSrc}
-                  alt=""
-                  width={24}
-                  height={24}
-                  style={{ display: "block" }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );
